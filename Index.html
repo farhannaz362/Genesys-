@@ -1,0 +1,2636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genesys +</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-base:#050810;
+  --bg-panel:#080c18;
+  --bg-card:#0d1220;
+  --bg-elevated:#111826;
+  --bg-hover:#161f2e;
+  --border:#1a2540;
+  --border-dim:#111d30;
+  --border-glow:#2a4580;
+  --blue:#3b82f6;
+  --blue-bright:#60a5fa;
+  --blue-dim:rgba(59,130,246,.18);
+  --blue-glow:rgba(59,130,246,.35);
+  --blue-pulse:rgba(59,130,246,.08);
+  --cyan:#22d3ee;
+  --cyan-dim:#0e7490;
+  --green:#10b981;
+  --green-dim:#065f46;
+  --red:#ef4444;
+  --red-dim:#7f1d1d;
+  --orange:#f97316;
+  --purple:#a78bfa;
+  --amber:#f59e0b;
+  --text-primary:#e8edf8;
+  --text-secondary:#5a7298;
+  --text-muted:#2a3d58;
+  --text-data:#8fa4c4;
+  --grad-a:#3b82f6;
+  --grad-b:#1d4ed8;
+  --grad-c:#0ea5e9;
+  --font-brand:'Lexend',sans-serif;
+  --font-display:'Syne',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'DM Mono',monospace;
+  --radius-sm:4px;--radius:6px;--radius-lg:10px;
+  --shadow-panel:0 4px 24px rgba(0,0,0,.5);
+  --sidebar-w:220px;--sidebar-collapsed-w:56px;--topbar-h:52px;
+  --transition-sidebar:.28s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{
+  background:var(--bg-base);
+  color:var(--text-primary);
+  font-family:var(--font-body);
+  min-height:100vh;display:flex;flex-direction:column;overflow:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%,rgba(59,130,246,.12) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%,rgba(14,165,233,.08) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 40% at 60% 30%,rgba(99,102,241,.06) 0%,transparent 50%);
+  pointer-events:none;z-index:0;
+}
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(59,130,246,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.025) 1px,transparent 1px);
+  background-size:40px 40px;pointer-events:none;z-index:0;
+}
+
+/* ══════════════════════════════════════════
+   SIGN-IN SCREEN
+══════════════════════════════════════════ */
+#signin-screen{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg-base);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:0;padding:40px 20px;
+  transition:opacity .8s ease,transform .8s cubic-bezier(.4,0,.2,1);
+}
+#signin-screen.whoosh{opacity:0;transform:scale(1.06) translateY(-20px);pointer-events:none}
+#signin-screen.done{display:none}
+
+/* ── LOGO SVG — CSS letter-by-letter draw animation ── */
+/* The SVG fills the screen centered, then shrinks to card width */
+#signin-logo-wrap{
+  display:flex;flex-direction:column;align-items:center;width:100%;
+  transition:transform .75s cubic-bezier(.4,0,.2,1),opacity .5s ease;
+  transform-origin:center top;
+}
+#signin-logo-wrap.shifted{
+  transform:scale(0.46) translateY(-30px);
+  opacity:.92;
+}
+#signin-svg-stage{
+  display:block;
+  width:min(560px,88vw);
+  height:auto;
+  overflow:visible;
+  margin:0 auto;
+}
+
+/* shared base for all animated glyphs */
+.gl{
+  fill:transparent;
+  stroke-dasharray:1200;
+  stroke-dashoffset:1200;
+  stroke-linejoin:round;
+  stroke-linecap:round;
+  paint-order:stroke fill;
+}
+.gl-letter{
+  stroke:#e8edf8;
+  stroke-width:1.6px;
+  animation:
+    glDraw 3s ease var(--gd,0s) forwards,
+    glFill 1.5s calc(var(--gd,0s) + 2.2s) ease forwards;
+}
+.gl-plus{
+  stroke:url(#siGrad);
+  stroke-width:2.4px;
+  animation:
+    glDraw 3s ease var(--gd,0s) forwards,
+    glFillGrad 1.5s calc(var(--gd,0s) + 2.2s) ease forwards,
+    glPulse 2.8s calc(var(--gd,0s) + 3.8s) ease-in-out infinite;
+}
+@keyframes glDraw{100%{stroke-dashoffset:0}}
+@keyframes glFill{100%{fill:#e8edf8;stroke-width:0}}
+@keyframes glFillGrad{100%{fill:url(#siGrad);stroke-width:0}}
+@keyframes glPulse{
+  0%,100%{filter:drop-shadow(0 0 5px rgba(96,165,250,.7))}
+  50%{filter:drop-shadow(0 0 22px rgba(96,165,250,1)) drop-shadow(0 0 44px rgba(59,130,246,.5))}
+}
+
+#signin-sub{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--text-secondary);
+  margin-top:12px;
+  opacity:0;transition:opacity .5s ease;
+}
+#signin-sub.show{opacity:1}
+
+/* topbar clock — clickable copy for non-agents */
+.topbar-clock{cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.topbar-clock:hover{background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.4)}
+.topbar-clock.copied{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.4);color:var(--green)}
+
+/* sign-in card */
+#signin-card{
+  width:min(420px,92vw);
+  background:rgba(8,12,24,.92);
+  border:1px solid rgba(59,130,246,.2);
+  border-radius:16px;
+  padding:28px 28px 24px;
+  backdrop-filter:blur(20px);
+  box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 0 1px rgba(59,130,246,.08),inset 0 1px 0 rgba(255,255,255,.04);
+  opacity:0;transform:translateY(16px);
+  transition:opacity .55s ease,transform .55s cubic-bezier(.4,0,.2,1);
+  position:relative;overflow:hidden;
+  margin-top:24px;
+}
+#signin-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(59,130,246,.6),transparent);
+}
+#signin-card.show{opacity:1;transform:none}
+.si-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.si-title{font-family:var(--font-brand);font-weight:700;font-size:18px;color:var(--text-primary)}
+.si-role-badge{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--blue-bright);
+  border:1px solid rgba(59,130,246,.3);background:rgba(59,130,246,.1);
+  padding:3px 8px;border-radius:3px;
+}
+.si-label{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:8px}
+.si-input{
+  width:100%;background:var(--bg-elevated);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:12px 14px;color:var(--text-primary);
+  font-family:var(--font-body);font-size:14px;
+  outline:none;transition:border-color .15s,box-shadow .15s;
+  margin-bottom:14px;
+}
+.si-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(59,130,246,.15)}
+.si-input::placeholder{color:var(--text-muted)}
+.si-btn{
+  width:100%;padding:13px;
+  background:linear-gradient(135deg,var(--grad-a),var(--grad-b));
+  color:#fff;font-family:var(--font-brand);font-weight:700;font-size:14px;
+  border:none;border-radius:var(--radius);
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  letter-spacing:.03em;position:relative;overflow:hidden;
+}
+.si-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);border-radius:inherit}
+.si-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(59,130,246,.4)}
+.si-btn:active{transform:none}
+.si-btn.loading{opacity:.7;pointer-events:none}
+.si-hint{
+  margin-top:20px;padding-top:18px;
+  border-top:1px solid var(--border);
+  font-family:var(--font-mono);font-size:10px;color:var(--text-muted);line-height:1.8;
+}
+.si-hint span{color:var(--text-secondary)}
+.si-error{
+  background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);
+  border-radius:var(--radius-sm);padding:8px 12px;
+  font-family:var(--font-mono);font-size:11px;color:var(--blue-bright);
+  margin-bottom:12px;display:none;
+}
+.si-error.show{display:block}
+#signin-footer{
+  margin-top:28px;
+  font-family:var(--font-mono);font-size:10px;color:var(--text-muted);
+  letter-spacing:.1em;text-align:center;
+  opacity:0;transition:opacity .5s ease .3s;
+}
+#signin-footer.show{opacity:1}
+
+/* ══════════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════════ */
+#layout{display:flex;height:100vh;position:relative;z-index:1}
+
+/* ── SIDEBAR ── */
+#sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:rgba(8,12,24,.97);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  transition:width var(--transition-sidebar);
+  position:relative;z-index:10;
+}
+#sidebar.collapsed{width:var(--sidebar-collapsed-w)}
+#sidebar::-webkit-scrollbar{width:3px}
+#sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.sidebar-brand{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 12px 12px 14px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;min-height:52px;
+}
+.sidebar-brand-name{
+  display:flex;align-items:center;gap:2px;
+  white-space:nowrap;overflow:hidden;
+  transition:opacity var(--transition-sidebar),max-width var(--transition-sidebar);
+}
+.sidebar-brand-text{
+  font-family:var(--font-brand);font-weight:700;font-size:14px;
+  letter-spacing:.04em;text-transform:uppercase;color:var(--text-primary);
+  line-height:1;
+}
+.sidebar-brand-plus{
+  font-family:var(--font-brand);font-weight:700;font-size:10px;
+  color:var(--blue-bright);text-shadow:0 0 8px var(--blue-glow);
+  position:relative;bottom:4px;margin-left:1px;line-height:1;
+}
+#sidebar.collapsed .sidebar-brand-name{opacity:0;max-width:0;pointer-events:none}
+.sidebar-toggle{
+  width:24px;height:24px;border-radius:5px;
+  background:var(--bg-elevated);border:1px solid var(--border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--text-secondary);font-size:12px;flex-shrink:0;
+  transition:background .15s,color .15s;
+}
+.sidebar-toggle:hover{background:var(--bg-hover);color:var(--text-primary)}
+
+.sidebar-collapsed-logo{
+  display:none;align-items:center;justify-content:center;
+  width:100%;padding:0;
+  border-bottom:1px solid var(--border);min-height:52px;flex-shrink:0;
+  font-family:var(--font-brand);font-weight:800;font-size:15px;
+  color:var(--blue-bright);text-shadow:0 0 10px var(--blue-glow);cursor:pointer;
+  letter-spacing:.01em;line-height:1;
+}
+#sidebar.collapsed .sidebar-collapsed-logo{display:flex}
+#sidebar.collapsed .sidebar-brand{display:none}
+
+.sidebar-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 0}
+.sidebar-scroll::-webkit-scrollbar{width:3px}
+.sidebar-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.nav-section{
+  padding:12px 14px 4px;
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--text-muted);font-weight:500;
+  white-space:nowrap;overflow:hidden;
+  transition:opacity var(--transition-sidebar);
+}
+#sidebar.collapsed .nav-section{opacity:0;height:0;padding:0;overflow:hidden}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 14px;cursor:pointer;
+  border-left:2px solid transparent;
+  font-size:12px;color:var(--text-secondary);
+  text-decoration:none;position:relative;
+  transition:background .15s,color .15s;
+  white-space:nowrap;
+}
+.nav-item:hover{background:var(--bg-elevated);color:var(--text-primary)}
+.nav-item.active{background:rgba(59,130,246,.1);border-left-color:var(--blue);color:var(--blue-bright)}
+.nav-item.hidden,.nav-section.hidden{display:none!important}
+.nav-item.locked-nav{opacity:.4;cursor:not-allowed}
+.nav-icon{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;opacity:.8}
+.nav-label{transition:opacity var(--transition-sidebar),max-width var(--transition-sidebar);max-width:200px;white-space:nowrap;overflow:hidden}
+#sidebar.collapsed .nav-label{opacity:0;max-width:0}
+.nav-badge{margin-left:auto;background:var(--blue);color:#fff;font-family:var(--font-mono);font-size:9px;font-weight:500;padding:1px 5px;border-radius:10px;transition:opacity var(--transition-sidebar)}
+.nav-badge.warn{background:rgba(245,158,11,.2);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+#sidebar.collapsed .nav-badge{opacity:0}
+
+.sidebar-footer{
+  padding:12px 14px;border-top:1px solid var(--border);
+  font-family:var(--font-mono);font-size:10px;color:var(--text-muted);
+  flex-shrink:0;overflow:hidden;
+}
+#sidebar.collapsed .sidebar-footer{padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:4px}
+#sidebar.collapsed .sidebar-footer-text{opacity:0;max-width:0;overflow:hidden}
+.copyright{margin-top:6px;font-size:9px;opacity:.5;letter-spacing:.06em}
+#sidebar.collapsed .copyright{display:none}
+
+/* ── MAIN ── */
+#main-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* topbar inside main */
+#topbar{
+  height:var(--topbar-h);flex-shrink:0;
+  background:rgba(8,12,24,.97);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;padding:0 20px;
+  backdrop-filter:blur(12px);
+  position:relative;z-index:5;
+}
+.topbar-status{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary)}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulseGlow 2s ease-in-out infinite}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.5)}50%{box-shadow:0 0 0 4px rgba(16,185,129,0)}}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.topbar-clock{
+  font-family:var(--font-mono);font-size:13px;color:var(--blue-bright);font-weight:500;
+  background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);
+  padding:4px 10px;border-radius:var(--radius-sm);
+}
+.user-badge{display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;font-size:12px}
+.user-avatar{
+  width:24px;height:24px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  color:#fff;font-weight:700;font-size:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-brand);
+}
+.role-badge{font-family:var(--font-mono);font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:2px}
+.role-badge.manager{background:rgba(167,139,250,.2);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
+.role-badge.agent{background:rgba(59,130,246,.15);color:var(--blue-bright);border:1px solid rgba(59,130,246,.25)}
+.role-badge.admin{background:rgba(14,165,233,.15);color:var(--cyan);border:1px solid rgba(14,165,233,.25)}
+.role-badge.team_coordinator{background:rgba(16,185,129,.14);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+
+#main-content{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+#main-content::-webkit-scrollbar{width:4px}
+#main-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.view{display:none;flex-direction:column;gap:16px}
+.view.active{display:flex;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ── PAGE HEADER ── */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.page-title{font-family:var(--font-display);font-weight:700;font-size:22px;line-height:1.2}
+.page-subtitle{font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-top:4px;letter-spacing:.05em}
+.page-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* ── STAT CARDS ── */
+.stats-row{display:flex;gap:12px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+.stats-row::-webkit-scrollbar{height:3px}
+.stats-row::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.stat-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:14px 16px;position:relative;overflow:hidden;
+  transition:border-color .2s,transform .2s;cursor:pointer;flex-shrink:0;min-width:130px;
+}
+.stat-card:hover{border-color:var(--border-glow);transform:translateY(-1px)}
+.stat-card.active-filter{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--blue))}
+.stat-card.green::before{--accent:var(--green)}.stat-card.cyan::before{--accent:var(--cyan)}
+.stat-card.red::before{--accent:var(--blue)}.stat-card.purple::before{--accent:var(--purple)}
+.stat-card.orange::before{--accent:var(--orange)}
+.stat-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-secondary);margin-bottom:8px}
+.stat-value{font-family:var(--font-display);font-weight:700;font-size:26px;line-height:1}
+
+/* ── PANELS ── */
+.panel{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg-card)}
+.panel-title{font-family:var(--font-display);font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+.panel-controls{display:flex;align-items:center;gap:8px}
+.panel-body{padding:16px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;font-family:var(--font-body);font-size:12px;font-weight:500;border-radius:var(--radius);cursor:pointer;transition:all .15s;border:1px solid transparent;text-decoration:none;white-space:nowrap;position:relative}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:none}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--grad-b));color:#fff;border-color:transparent;font-weight:600}
+.btn-primary:hover{box-shadow:0 4px 16px rgba(59,130,246,.4)}
+.btn-secondary{background:var(--bg-elevated);color:var(--text-primary);border-color:var(--border)}.btn-secondary:hover{background:var(--bg-hover);border-color:var(--border-glow)}
+.btn-ghost{background:transparent;color:var(--text-secondary);border-color:transparent}.btn-ghost:hover{background:var(--bg-elevated);color:var(--text-primary)}
+.btn-danger{background:rgba(59,130,246,.15);color:var(--blue-bright);border-color:rgba(59,130,246,.3)}
+.btn-success{background:rgba(16,185,129,.15);color:var(--green);border-color:rgba(16,185,129,.3)}
+.btn-sm{padding:5px 12px;font-size:11px}.btn-xs{padding:3px 8px;font-size:10px}
+.btn.spin-loading::after{content:'';position:absolute;right:8px;top:50%;margin-top:-5px;width:10px;height:10px;border:2px solid transparent;border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── DATA TABLE ── */
+.data-table-wrap{overflow:auto;max-height:520px}
+.data-table{width:100%;border-collapse:collapse;font-family:var(--font-body);font-size:12px}
+.data-table th{padding:9px 12px;font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-secondary);text-align:left;border-bottom:1px solid var(--border);background:var(--bg-card);white-space:nowrap;position:sticky;top:0;z-index:2}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border-dim);color:var(--text-data);vertical-align:middle}
+.data-table tr:hover td{background:var(--bg-hover)}
+.agent-name{color:var(--text-primary);font-weight:500}
+.mono{font-family:var(--font-mono);font-size:11px}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-family:var(--font-mono);font-size:10px;background:var(--bg-elevated);color:var(--text-secondary);border:1px solid var(--border)}
+
+/* ── CHIPS ── */
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:3px;font-family:var(--font-mono);font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;border:1px solid var(--border)}
+.chip-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.chip.online{background:rgba(16,185,129,.15);color:var(--green);border-color:rgba(16,185,129,.3)}.chip.online .chip-dot{background:var(--green)}
+.chip.active{background:rgba(59,130,246,.1);color:var(--blue-bright);border-color:rgba(59,130,246,.25)}.chip.active .chip-dot{background:var(--blue-bright)}
+.chip.idle{background:rgba(245,158,11,.12);color:var(--amber);border-color:rgba(245,158,11,.3)}.chip.idle .chip-dot{background:var(--amber)}
+.chip.offline{background:rgba(100,116,139,.15);color:var(--text-secondary);border-color:var(--border)}.chip.offline .chip-dot{background:var(--text-secondary)}
+.chip.absent{background:rgba(59,130,246,.15);color:var(--blue-bright);border-color:rgba(59,130,246,.3)}.chip.absent .chip-dot{background:var(--blue-bright)}
+.chip.break{background:rgba(167,139,250,.15);color:var(--purple);border-color:rgba(167,139,250,.3)}.chip.break .chip-dot{background:var(--purple)}
+.chip.late{background:rgba(249,115,22,.15);color:var(--orange);border-color:rgba(249,115,22,.3)}.chip.late .chip-dot{background:var(--orange)}
+.chip.wrap,.chip.shiftwrap{background:rgba(34,211,238,.1);color:var(--cyan);border-color:rgba(34,211,238,.2)}.chip.wrap .chip-dot,.chip.shiftwrap .chip-dot{background:var(--cyan)}
+.chip.overtime{background:rgba(34,211,238,.15);color:var(--cyan);border-color:rgba(34,211,238,.25)}.chip.overtime .chip-dot{background:var(--cyan)}
+.chip.risk-low{background:rgba(16,185,129,.1);color:var(--green);border-color:rgba(16,185,129,.2)}
+.chip.risk-medium{background:rgba(245,158,11,.1);color:var(--amber);border-color:rgba(245,158,11,.3)}
+.chip.risk-high,.chip.risk-critical{background:rgba(59,130,246,.12);color:var(--blue-bright);border-color:rgba(59,130,246,.3)}
+
+/* ── FORMS ── */
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-secondary)}
+.form-input,.form-select,textarea{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;color:var(--text-primary);font-family:var(--font-body);font-size:13px;outline:none;width:100%;transition:border-color .15s}
+.form-input:focus,.form-select:focus,textarea:focus{border-color:var(--blue)}
+.form-select option{background:var(--bg-elevated)}
+.form-row{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+
+/* ── SEARCH BAR ── */
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);padding:6px 12px}
+.search-bar input{background:none;border:none;outline:none;color:var(--text-primary);font-size:12px;width:180px}
+
+/* ── ACTION MENU ── */
+.action-menu{position:relative;display:inline-block}
+.action-dropdown{position:absolute;right:0;top:100%;min-width:200px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-panel);z-index:200;display:none;padding:4px 0}
+.action-dropdown.open{display:block}
+.action-item{padding:8px 12px;font-size:12px;cursor:pointer;color:var(--text-secondary);display:flex;align-items:center;gap:8px}
+.action-item:hover{background:var(--bg-hover);color:var(--text-primary)}
+.action-item.danger{color:var(--blue-bright)}
+
+/* ── BANNERS ── */
+.access-banner{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.3);border-radius:var(--radius);padding:12px 16px;display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text-secondary);line-height:1.6}
+.access-banner-icon{font-size:16px;color:var(--blue-bright);flex-shrink:0;margin-top:1px}
+.info-banner{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:12px}
+
+/* ── AGENT STATUS RING ── */
+.agent-status-ring{
+  width:100px;height:100px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;
+  border:3px solid var(--green);box-shadow:0 0 20px rgba(16,185,129,.3);
+  transition:border-color .5s,box-shadow .5s;flex-shrink:0;
+  background:radial-gradient(circle,rgba(16,185,129,.05),transparent 70%);
+}
+.agent-status-ring.status-offline{border-color:var(--text-muted);box-shadow:none;background:none}
+.agent-status-ring.status-absent{border-color:var(--blue);box-shadow:0 0 20px rgba(59,130,246,.3);background:radial-gradient(circle,rgba(59,130,246,.05),transparent 70%)}
+.agent-status-ring.status-break{border-color:var(--purple);box-shadow:0 0 20px rgba(167,139,250,.3);background:radial-gradient(circle,rgba(167,139,250,.05),transparent 70%)}
+.agent-status-ring.status-wrap{border-color:var(--cyan);box-shadow:0 0 20px rgba(34,211,238,.3);background:radial-gradient(circle,rgba(34,211,238,.05),transparent 70%)}
+.agent-status-ring.status-online{border-color:var(--green);box-shadow:0 0 20px rgba(16,185,129,.3)}
+
+/* ── COUNTDOWN AREA ── */
+.countdown-panel{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  position:relative;overflow:hidden;
+}
+.countdown-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.countdown-header{font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-secondary)}
+.countdown-value{font-family:var(--font-display);font-weight:800;font-size:28px;color:var(--blue-bright);letter-spacing:.04em;line-height:1}
+.countdown-value.green{color:var(--green)}
+.countdown-value.purple{color:var(--purple)}
+.countdown-value.amber{color:var(--amber)}
+.countdown-value.red{color:var(--blue-bright)}
+
+/* ── BREAK COUNTDOWN CARDS ── */
+.break-countdown-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:14px 16px;display:flex;align-items:center;gap:16px;transition:border-color .3s;
+}
+.break-countdown-card.active{border-color:rgba(59,130,246,.5);background:rgba(59,130,246,.05)}
+.break-countdown-card.ongoing{border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.06)}
+.break-countdown-card.done{opacity:.45}
+.cd-time{font-family:var(--font-mono);font-weight:700;font-size:18px;color:var(--blue-bright);min-width:90px}
+.cd-time.green{color:var(--green)}.cd-time.purple{color:var(--purple)}
+
+/* ── SLOT GRID ── */
+.slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:5px;margin-top:8px}
+.slot-btn{
+  padding:7px 4px;text-align:center;border:1px solid var(--border);border-radius:var(--radius);
+  background:var(--bg-card);cursor:pointer;font-family:var(--font-mono);font-size:11px;
+  color:var(--text-secondary);transition:all .15s;
+}
+.slot-btn:hover:not(.disabled){border-color:var(--blue);color:var(--blue-bright);background:rgba(59,130,246,.08)}
+.slot-btn.selected{border-color:var(--blue);background:linear-gradient(135deg,rgba(59,130,246,.25),rgba(30,64,175,.25));color:var(--blue-bright);font-weight:700}
+.slot-btn.disabled{opacity:.25;cursor:not-allowed}
+
+/* ── BREAK LOCK STATE ── */
+.break-locked-msg{
+  background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);
+  border-radius:var(--radius-lg);padding:20px;text-align:center;
+  font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);line-height:1.8;
+}
+.break-locked-msg .lock-icon{font-size:28px;margin-bottom:8px;display:block}
+.break-locked-msg .lock-reason{color:var(--blue-bright);margin-top:6px;font-size:11px}
+
+/* ── PERFORMANCE PYRAMID ── */
+.perf-pyramid{display:flex;flex-direction:column;gap:16px;align-items:center}
+.perf-row{display:flex;gap:16px;justify-content:center}
+.perf-card{width:200px;min-height:140px;cursor:default;perspective:600px}
+.perf-card-inner{position:relative;width:100%;height:140px;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.perf-card-front,.perf-card-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius-lg);padding:16px;border:1px solid var(--border);background:var(--bg-card)}
+.perf-card-front::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:var(--radius-lg) var(--radius-lg) 0 0}
+.perf-card-back{transform:rotateY(180deg);background:var(--bg-elevated);display:flex;flex-direction:column;gap:8px}
+.perf-card-label{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-secondary)}
+.perf-card-value{font-family:var(--font-display);font-weight:800;font-size:26px;margin:6px 0 3px;line-height:1}
+.perf-card-vs{font-family:var(--font-mono);font-size:10px;display:flex;align-items:center;gap:4px}
+.sparkline-svg{width:100%;height:24px;overflow:visible}
+.sparkline-path{fill:none;stroke:var(--blue);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.sparkline-path.green{stroke:var(--green)}
+
+/* ── HC GRID ── */
+.hc-grid-container{overflow:auto}
+.hc-table{border-collapse:collapse;font-size:11px;font-family:var(--font-mono);min-width:100%}
+.hc-table th{padding:6px 10px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);font-size:9px;letter-spacing:.08em;text-align:center;white-space:nowrap;position:sticky;top:0;z-index:2}
+.hc-table th.row-head{position:sticky;left:0;z-index:3;text-align:left}
+.hc-table td{padding:5px 8px;border:1px solid var(--border-dim);text-align:center;font-size:11px;min-width:44px;cursor:default;transition:background .15s}
+.hc-table td:hover{border-color:var(--blue)}
+.hc-table td.row-head{background:var(--bg-card);color:var(--text-secondary);font-size:10px;position:sticky;left:0;z-index:1;text-align:left;padding:5px 10px}
+.hc-cell-high{background:rgba(16,185,129,.18)!important;color:var(--green);font-weight:700}
+.hc-cell-mid{background:rgba(245,158,11,.12)!important;color:var(--amber)}
+.hc-cell-low{background:rgba(59,130,246,.12)!important;color:var(--blue-bright)}
+.hc-cell-zero{background:rgba(100,116,139,.1)!important;color:var(--text-muted)}
+
+/* ── WEEK TABS ── */
+.week-tabs{display:flex;gap:4px;background:var(--bg-card);padding:4px;border-radius:var(--radius);border:1px solid var(--border)}
+.week-tab{padding:5px 14px;border-radius:4px;font-family:var(--font-mono);font-size:11px;cursor:pointer;color:var(--text-secondary);transition:all .15s}
+.week-tab.active{background:linear-gradient(135deg,var(--blue),var(--grad-b));color:#fff;font-weight:600}
+.week-tab:hover:not(.active){background:var(--bg-elevated);color:var(--text-primary)}
+
+/* ── CALENDAR ── */
+.calendar-wrap{position:relative;overflow:auto;max-height:700px;background:var(--bg-card);border:1px solid var(--border);border-radius:0 0 var(--radius-lg) var(--radius-lg)}
+.calendar-inner{position:relative;height:1944px;min-width:100%}
+.cal-time-col{position:absolute;left:0;top:0;width:60px;height:100%;border-right:1px solid var(--border);z-index:4;background:var(--bg-card)}
+.cal-hour-line{position:absolute;left:0;right:0;height:1px;background:var(--border-dim);pointer-events:none}
+.cal-hour-label{position:absolute;left:8px;transform:translateY(-50%);font-family:var(--font-mono);font-size:10px;color:var(--text-muted)}
+.cal-now-line{position:absolute;left:0;right:0;height:2px;background:rgba(59,130,246,.6);pointer-events:none;z-index:5}
+.cal-drop-helper{position:absolute;left:0;right:0;height:1px;background:rgba(59,130,246,.8);pointer-events:none;z-index:6;display:none}
+.cal-drop-label{position:absolute;right:8px;background:var(--blue);color:#fff;font-family:var(--font-mono);font-size:10px;padding:2px 6px;border-radius:3px;transform:translateY(-50%);white-space:nowrap}
+.cal-events-col{position:absolute;left:60px;right:0;top:0;height:100%}
+/* Overlapping events in same slot are laid out in a horizontal row, each gets equal width */
+.break-event-group{position:absolute;left:2px;right:2px;display:flex;gap:2px}
+.break-event{position:absolute;left:4px;right:4px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:var(--radius);padding:5px 8px;cursor:grab;overflow:hidden;transition:box-shadow .15s}
+.break-event:hover{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.break-event.dragging{opacity:.6;cursor:grabbing}
+.break-event-name{font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-primary)}
+.break-event-meta{font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);margin-top:2px}
+.snap-indicator{position:absolute;left:60px;right:0;height:2px;background:rgba(59,130,246,.5);pointer-events:none;display:none;z-index:7}
+
+/* ── DEFICIT BAR ── */
+.deficit-bar{height:5px;background:var(--bg-elevated);border-radius:3px;overflow:hidden;margin-top:4px}
+.deficit-fill{height:100%;border-radius:3px}
+.deficit-fill.ok{background:var(--green)}.deficit-fill.warn{background:var(--amber)}.deficit-fill.crit{background:var(--blue)}
+
+/* ── SUGGESTION CARD ── */
+.suggestion-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;align-items:center;gap:12px;transition:border-color .15s}
+.suggestion-card:hover{border-color:var(--blue)}
+.suggestion-impact{font-family:var(--font-mono);font-size:10px;color:var(--green);margin-top:3px}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;min-width:380px;max-width:620px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.modal-title{font-family:var(--font-display);font-weight:700;font-size:18px;margin-bottom:16px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+
+/* ── TOAST ── */
+#toast-container{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:400;pointer-events:none}
+.toast{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;min-width:280px;box-shadow:var(--shadow-panel);pointer-events:all;animation:slideLeft .25s ease}
+@keyframes slideLeft{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+
+/* ── IN-APP POPUP NOTIFICATION ── */
+#popup-notification{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--bg-panel);border:1px solid rgba(59,130,246,.4);border-radius:var(--radius-lg);
+  padding:16px 20px;max-width:420px;width:90vw;
+  box-shadow:0 8px 40px rgba(0,0,0,.6),0 0 0 1px rgba(59,130,246,.1);
+  z-index:500;opacity:0;transition:opacity .35s ease,transform .35s cubic-bezier(.4,0,.2,1);
+  display:none;
+}
+#popup-notification::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:var(--radius-lg) var(--radius-lg) 0 0}
+#popup-notification.show{display:block;opacity:1;transform:translateX(-50%) translateY(0)}
+.popup-title{font-family:var(--font-display);font-weight:700;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.popup-body{font-size:12px;color:var(--text-secondary);line-height:1.6}
+.popup-close{position:absolute;top:10px;right:12px;cursor:pointer;color:var(--text-muted);font-size:16px;transition:color .15s}
+.popup-close:hover{color:var(--text-primary)}
+
+/* ── MISC ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-muted);font-family:var(--font-mono);font-size:12px}
+.hidden{display:none!important}
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulseGlow 1.5s ease-in-out infinite;margin-right:4px}
+.loading-overlay{display:flex;align-items:center;justify-content:center;padding:30px;color:var(--text-secondary);font-family:var(--font-mono);font-size:12px;gap:10px}
+.loading-overlay::before{content:'';width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+
+@media(max-width:1100px){
+  .two-col,.three-col,.form-row{grid-template-columns:1fr}
+  .page-actions{width:100%}
+  .search-bar input{width:120px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     SIGN-IN SCREEN
+══════════════════════════════════════ -->
+<div id="signin-screen">
+  <div id="signin-logo-wrap">
+    <!-- Genesys+ logo — CSS letter-by-letter stroke draw animation -->
+    <svg id="signin-svg-stage" viewBox="0 0 800 200" width="min(700px,90vw)" height="min(120px,18vw)" style="display:block;margin:0 auto;overflow:visible">
+      <defs>
+        <linearGradient id="siGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stop-color="#4173ff"/>
+          <stop offset="100%" stop-color="#00e5ff"/>
+        </linearGradient>
+      </defs>
+      <!-- Genesys letters + smaller raised + -->
+      <text dominant-baseline="middle" font-family="Lexend, sans-serif" font-weight="600" letter-spacing="-1">
+        <!-- Each letter at y=100 (mid), + is raised to y=76 and font-size 72 vs 110 -->
+        <tspan class="gl gl-letter" font-size="110" x="44"  y="110" style="--gd:0.0s">G</tspan>
+        <tspan class="gl gl-letter" font-size="110" dx="-2" y="110" style="--gd:0.3s">e</tspan>
+        <tspan class="gl gl-letter" font-size="110" dx="-2" y="110" style="--gd:0.6s">n</tspan>
+        <tspan class="gl gl-letter" font-size="110" dx="-2" y="110" style="--gd:0.9s">e</tspan>
+        <tspan class="gl gl-letter" font-size="110" dx="-2" y="110" style="--gd:1.2s">s</tspan>
+        <tspan class="gl gl-letter" font-size="110" dx="-2" y="110" style="--gd:1.5s">y</tspan>
+        <tspan class="gl gl-letter" font-size="110" dx="-2" y="110" style="--gd:1.8s">s</tspan>
+        <tspan class="gl gl-plus"   font-size="72"  dx="6"  y="82"  style="--gd:2.1s">+</tspan>
+      </text>
+    </svg>
+    <div id="signin-sub">Workforce Management Platform</div>
+  </div>
+
+  <div id="signin-card">
+    <div class="si-header">
+      <div class="si-title">Authenticating</div>
+      <div class="si-role-badge" id="si-role-badge">AGENT</div>
+    </div>
+    <div class="si-error" id="si-error"></div>
+    <div class="si-label">Work Email</div>
+    <input class="si-input" type="email" id="si-email" placeholder="Verifying your identity…" autocomplete="email" onkeydown="if(event.key==='Enter')doSignIn()">
+    <button class="si-btn" id="si-btn" onclick="doSignIn()">
+      <span id="si-btn-text">Continue →</span>
+    </button>
+    <div class="si-hint">
+      Access is granted by roster. &nbsp;|&nbsp; <span>?mode=coordinator</span> &nbsp;|&nbsp; <span>?mode=manager</span> &nbsp;|&nbsp; <span>?mode=farhan</span>
+    </div>
+  </div>
+  <div id="signin-footer">© Farhan_labs &nbsp;·&nbsp; Genesys + v2.1</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     LAYOUT (hidden until signed in)
+══════════════════════════════════════ -->
+<div id="layout" style="display:none">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <!-- Expanded brand -->
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-name">
+        <span class="sidebar-brand-text">GENESYS</span>
+        <span class="sidebar-brand-plus">+</span>
+      </div>
+      <div class="sidebar-toggle" onclick="toggleSidebar()" title="Collapse sidebar">◂</div>
+    </div>
+    <!-- Collapsed logo (icon only) -->
+    <div class="sidebar-collapsed-logo" onclick="toggleSidebar()" title="Expand sidebar">G+</div>
+
+    <div class="sidebar-scroll">
+      <div class="nav-section" data-section="workspace">My Workspace</div>
+      <a class="nav-item" data-view="agent" onclick="switchView('agent')"><span class="nav-icon">◈</span><span class="nav-label">My Schedule</span></a>
+      <a class="nav-item" data-view="performance" onclick="switchView('performance')"><span class="nav-icon">△</span><span class="nav-label">My Performance</span></a>
+
+      <div class="nav-section" data-section="operations">Operations</div>
+      <a class="nav-item" data-view="monitor" onclick="switchView('monitor')"><span class="nav-icon">⬡</span><span class="nav-label">Live Monitor</span><span class="nav-badge" id="badge-alerts">0</span></a>
+      <a class="nav-item" data-view="exceptions" onclick="switchView('exceptions')"><span class="nav-icon">✦</span><span class="nav-label">Exception Center</span></a>
+      <a class="nav-item" data-view="headcount" onclick="switchView('headcount')"><span class="nav-icon">▦</span><span class="nav-label">Headcount Grid</span></a>
+      <a class="nav-item" data-view="balancing" onclick="switchView('balancing')"><span class="nav-icon">⚖</span><span class="nav-label">Balancing Engine</span><span class="nav-badge warn" id="badge-deficits">0</span></a>
+      <a class="nav-item" data-view="breakCalendar" onclick="switchView('breakCalendar')"><span class="nav-icon">☕</span><span class="nav-label">Break Calendar</span></a>
+
+      <div class="nav-section" data-section="management">Management</div>
+      <a class="nav-item" data-view="manager" onclick="switchView('manager')"><span class="nav-icon">◆</span><span class="nav-label">Manager Tools</span></a>
+      <a class="nav-item" data-view="admin" onclick="switchView('admin')"><span class="nav-icon">⬢</span><span class="nav-label">Admin Tools</span></a>
+
+      <div class="nav-section" data-section="audit">Audit</div>
+      <a class="nav-item" data-view="logs" onclick="switchView('logs')"><span class="nav-icon">≡</span><span class="nav-label">Activity Logs</span></a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-text" id="sidebar-date">--</div>
+      <div class="copyright sidebar-footer-text">© Farhan_labs 2026</div>
+    </div>
+  </nav>
+
+  <!-- MAIN WRAP -->
+  <div id="main-wrap">
+    <!-- TOPBAR -->
+    <header id="topbar">
+      <div class="topbar-status">
+        <div class="pulse-dot"></div>
+        <span id="system-status">SYSTEM LIVE</span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-clock" id="clock" title="Click to copy nearest 5-min interval" onclick="copyNearestInterval()">00:00:00</div>
+        <div class="user-badge">
+          <div class="user-avatar" id="user-avatar">--</div>
+          <span id="user-name">Loading</span>
+          <span class="role-badge agent" id="role-badge">AGENT</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="refresh-main-btn" onclick="refreshAll()">↻ Refresh</button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main id="main-content">
+
+      <!-- MY SCHEDULE -->
+      <div class="view active" id="view-agent">
+        <div class="page-header">
+          <div>
+            <div class="page-title">My Schedule</div>
+            <div class="page-subtitle">STATUS · BREAKS · SHIFT OVERVIEW</div>
+          </div>
+        </div>
+
+        <div class="access-banner hidden" id="agent-lock-banner">
+          <div class="access-banner-icon">⚠</div>
+          <div id="agent-lock-msg"></div>
+        </div>
+
+        <!-- Agent identity + status ring -->
+        <div class="panel">
+          <div class="panel-body">
+            <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+              <div class="agent-status-ring status-offline" id="agent-ring">
+                <div style="font-family:var(--font-mono);font-size:8px;color:var(--text-secondary);letter-spacing:.1em">STATUS</div>
+                <div style="font-family:var(--font-display);font-weight:800;font-size:10px;text-align:center;padding:0 4px;line-height:1.2" id="agent-state-label">OFFLINE</div>
+              </div>
+              <div style="flex:1;min-width:160px">
+                <div style="font-family:var(--font-display);font-weight:700;font-size:20px" id="agent-full-name">--</div>
+                <div style="font-family:var(--font-mono);font-size:11px;color:var(--blue-bright);margin-top:3px">
+                  FIU &nbsp;·&nbsp; <span id="agent-role-label" style="color:var(--text-secondary)">--</span>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+                  <span class="tag" id="agent-shift">Shift: --</span>
+                  <span class="tag" id="agent-team">Team: --</span>
+                  <span class="tag" id="agent-break-status">Break: Pending</span>
+                </div>
+              </div>
+              <!-- Countdown panel (right side) -->
+              <div id="agent-countdown-panel" class="countdown-panel" style="min-width:180px;text-align:center;flex-direction:column">
+                <div class="countdown-header" id="cd-header">SHIFT ENDS IN</div>
+                <div class="countdown-value" id="agent-shift-countdown">--:--:--</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Break cards (shown after submission) -->
+        <div id="agent-break-cards" style="display:flex;flex-direction:column;gap:8px"></div>
+
+        <!-- Break submission / locked state -->
+        <div id="break-submit-panel" class="panel">
+          <div class="panel-header">
+            <div class="panel-title">☕ Break Submission</div>
+            <div class="panel-controls">
+              <select class="form-select" style="width:180px" id="break-plan-select" onchange="renderBreakSelectors()">
+                <option value="T1">T1 · 2 × 30 min</option>
+                <option value="T2">T2 · 30 + 15 + 15</option>
+              </select>
+            </div>
+          </div>
+          <div class="panel-body" id="break-submit-body">
+            <!-- populated by renderBreakSelectors or showBreakLocked -->
+          </div>
+        </div>
+      </div>
+
+      <!-- MY PERFORMANCE -->
+      <div class="view" id="view-performance">
+        <div class="page-header">
+          <div>
+            <div class="page-title">My Performance</div>
+            <div class="page-subtitle">WEEKLY KPIs · TRENDS · TARGETS</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-secondary btn-sm" id="refresh-perf-btn" onclick="loadPerformance()">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="perf-pyramid" id="perf-kpi-pyramid"></div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">≡ Weekly History</div></div>
+          <div class="data-table-wrap"><table class="data-table"><thead id="perf-thead"><tr></tr></thead><tbody id="perf-tbody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- LIVE MONITOR -->
+      <div class="view" id="view-monitor">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Live Operations Monitor</div>
+            <div class="page-subtitle"><span class="live-dot"></span>REAL-TIME · AUTO-SYNC EVERY 60s</div>
+          </div>
+          <div class="page-actions">
+            <div class="search-bar"><span style="color:var(--text-muted)">⌕</span><input type="text" placeholder="Search agents…" id="monitor-search" oninput="renderMonitor()"></div>
+            <button class="btn btn-secondary btn-sm" id="refresh-monitor-btn" onclick="loadLiveRefresh()">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="stats-row" id="monitor-stats-row">
+          <div class="stat-card green"   data-filter="ONLINE"       onclick="filterMonitor('ONLINE',this)"><div class="stat-label">Online</div><div class="stat-value" id="stat-online">--</div></div>
+          <div class="stat-card cyan"    data-filter="ACTIVE"       onclick="filterMonitor('ACTIVE',this)"><div class="stat-label">Active</div><div class="stat-value" id="stat-active">--</div></div>
+          <div class="stat-card"         data-filter="IDLE"         onclick="filterMonitor('IDLE',this)"><div class="stat-label">Idle</div><div class="stat-value" id="stat-idle">--</div></div>
+          <div class="stat-card red"     data-filter="ABSENT"       onclick="filterMonitor('ABSENT',this)"><div class="stat-label">Absent</div><div class="stat-value" id="stat-absent">--</div></div>
+          <div class="stat-card purple"  data-filter="BREAK"        onclick="filterMonitor('BREAK',this)"><div class="stat-label">On Break</div><div class="stat-value" id="stat-break">--</div></div>
+          <div class="stat-card orange"  data-filter="HIGH,CRITICAL" onclick="filterMonitor('HIGH,CRITICAL',this)"><div class="stat-label">High Risk</div><div class="stat-value" id="stat-alerts">--</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">⬡ Unified Status Board</div>
+            <div class="panel-controls">
+              <button class="btn btn-ghost btn-sm" onclick="filterMonitor('',null)">Clear Filter</button>
+              <span class="tag" id="monitor-filter-label" style="display:none"></span>
+            </div>
+          </div>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Agent</th><th>ID</th><th>Shift</th><th>Team</th><th>Next Break</th><th>Status</th><th>Exception</th><th>Last Activity</th><th>Risk</th><th>Actions</th></tr></thead>
+              <tbody id="monitor-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXCEPTION CENTER -->
+      <div class="view" id="view-exceptions">
+        <div class="page-header">
+          <div><div class="page-title">Exception Center</div><div class="page-subtitle">LATE ARRIVAL · EARLY DEPARTURE · ABSENT · OVERTIME</div></div>
+          <div class="page-actions"><button class="btn btn-secondary btn-sm" onclick="loadExceptions()">↻ Refresh</button></div>
+        </div>
+        <div class="two-col">
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">✦ Log Exception</div></div>
+            <div class="panel-body" style="display:flex;flex-direction:column;gap:12px">
+              <div class="form-group"><div class="form-label">Agent</div><select class="form-select" id="ex-agent"></select></div>
+              <div class="form-row">
+                <div class="form-group"><div class="form-label">Type</div>
+                  <select class="form-select" id="ex-type" onchange="updateExceptionFields()">
+                    <option>Late Arrival</option><option>Early Departure</option><option>Absent</option><option>Overtime</option>
+                  </select>
+                </div>
+                <div class="form-group"><div class="form-label">Shift Date</div><input class="form-input" type="date" id="ex-date"></div>
+              </div>
+              <div id="ex-dynamic-fields"></div>
+              <div class="form-group"><div class="form-label">Notes</div><input class="form-input" id="ex-notes" placeholder="Optional notes"></div>
+              <button class="btn btn-primary" id="ex-submit-btn" onclick="submitException()">Submit Exception</button>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">≡ Recent Exceptions</div></div>
+            <div class="data-table-wrap" style="max-height:440px">
+              <table class="data-table">
+                <thead><tr><th>Timestamp</th><th>Agent</th><th>Date</th><th>Type</th><th>Time</th><th>Duration</th><th>Source</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="exceptions-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HEADCOUNT GRID -->
+      <div class="view" id="view-headcount">
+        <div class="page-header">
+          <div><div class="page-title">Headcount Grid</div><div class="page-subtitle">BREAK SLOTS · BREAK AUDITS · ADHERENCE · LIVE HEADCOUNT</div></div>
+          <div class="page-actions">
+            <div class="week-tabs" id="hc-week-tabs"></div>
+            <button class="btn btn-secondary btn-sm" id="hc-view-toggle" onclick="toggleHcView()">All 28 Days</button>
+            <button class="btn btn-primary btn-sm" id="recalc-btn" onclick="recalcHeadcount()">↻ Recalculate</button>
+          </div>
+        </div>
+        <div class="panel" style="overflow:hidden">
+          <div class="panel-header"><div class="panel-title">▦ Available Break Minutes</div></div>
+          <div class="panel-body" style="padding:0;overflow:auto"><div id="hc-slots-grid"></div></div>
+        </div>
+        <div class="panel" style="overflow:hidden">
+          <div class="panel-header"><div class="panel-title">☕ Break Audits</div><div class="panel-controls"><span class="tag">Hover for agent details</span></div></div>
+          <div class="panel-body" style="padding:0;overflow:auto"><div id="hc-breaks-grid"></div></div>
+        </div>
+        <div class="panel" style="overflow:hidden">
+          <div class="panel-header"><div class="panel-title">◈ Committed Adherence</div></div>
+          <div class="panel-body" style="padding:0;overflow:auto"><div id="hc-adherence-grid"></div></div>
+        </div>
+        <div class="panel" style="overflow:hidden">
+          <div class="panel-header"><div class="panel-title">⬡ Live Headcount</div><div class="panel-controls"><span class="tag">Hover for agents</span></div></div>
+          <div class="panel-body" style="padding:0;overflow:auto"><div id="hc-live-grid"></div></div>
+        </div>
+      </div>
+
+      <!-- BALANCING ENGINE -->
+      <div class="view" id="view-balancing">
+        <div class="page-header">
+          <div><div class="page-title">Balancing Engine</div><div class="page-subtitle">DEFICIT DETECTION · INTELLIGENT BREAK MOVEMENT</div></div>
+          <div class="page-actions"><button class="btn btn-primary btn-sm" id="analyze-btn" onclick="loadBalancing()">▶ Analyze Now</button></div>
+        </div>
+        <div class="two-col">
+          <div class="panel"><div class="panel-header"><div class="panel-title">⚠ Staffing Deficits</div></div><div class="panel-body"><div style="display:flex;flex-direction:column;gap:10px" id="deficit-list"><div class="empty-state">Click Analyze Now to detect deficits.</div></div></div></div>
+          <div class="panel"><div class="panel-header"><div class="panel-title">💡 Movement Suggestions</div></div><div class="panel-body"><div style="display:flex;flex-direction:column;gap:8px" id="suggestion-list"><div class="empty-state">No suggestions yet.</div></div></div></div>
+        </div>
+      </div>
+
+      <!-- BREAK CALENDAR -->
+      <div class="view" id="view-breakCalendar">
+        <div class="page-header">
+          <div><div class="page-title">Break Calendar</div><div class="page-subtitle">DRAG & DROP · 5-MIN SNAP · LIVE OCCUPANCY</div></div>
+          <div class="page-actions">
+            <input class="form-input" style="width:160px" type="date" id="bc-date" onchange="loadBreakCalendar()">
+            <button class="btn btn-secondary btn-sm" onclick="loadBreakCalendar()">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="two-col" style="grid-template-columns:minmax(0,2fr) minmax(280px,1fr)">
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">☕ Break Timeline</div><div class="panel-controls"><span class="tag">05:00 – 08:00+1 · Drag to move</span></div></div>
+            <div class="panel-body" style="padding:0">
+              <div class="calendar-wrap" id="calendar-wrap">
+                <div class="calendar-inner" id="calendar-inner">
+                  <div class="cal-time-col" id="cal-time-col"></div>
+                  <div class="cal-events-col" id="cal-events-col"></div>
+                  <div class="cal-now-line" id="cal-now-line"></div>
+                  <div class="cal-drop-helper" id="cal-drop-helper"><div class="cal-drop-label" id="cal-drop-label">00:00</div></div>
+                  <div class="snap-indicator" id="snap-indicator"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">Pending Agents</div></div>
+            <div class="data-table-wrap" style="max-height:680px">
+              <table class="data-table"><thead><tr><th>Agent</th><th>Shift</th><th>Action</th></tr></thead><tbody id="break-unscheduled"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MANAGER TOOLS -->
+      <div class="view" id="view-manager">
+        <div class="page-header">
+          <div><div class="page-title">Manager Tools</div><div class="page-subtitle">BREAK SUBMISSION · ENGINE CONTROLS</div></div>
+        </div>
+        <div class="two-col">
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">☕ Submit Breaks for Agent</div></div>
+            <div class="panel-body" style="display:flex;flex-direction:column;gap:12px">
+              <div class="form-group"><div class="form-label">Agent</div><select class="form-select" id="mgr-break-agent" onchange="renderManagerBreakSlots()"></select></div>
+              <div class="form-group"><div class="form-label">Break Plan</div>
+                <select class="form-select" id="mgr-break-plan" onchange="renderManagerBreakSlots()">
+                  <option value="T1">T1 · 2×30 min</option><option value="T2">T2 · 30 + 15 + 15</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><div class="form-label">Break 1</div><input class="form-input" type="time" id="mgr-b1"></div>
+                <div class="form-group"><div class="form-label">Break 2</div><input class="form-input" type="time" id="mgr-b2"></div>
+              </div>
+              <div class="form-group" id="mgr-b3-wrap" style="display:none"><div class="form-label">Break 3</div><input class="form-input" type="time" id="mgr-b3"></div>
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary)">5-minute intervals · Manager override enabled</div>
+              <button class="btn btn-primary" id="mgr-submit-break-btn" onclick="managerSubmitBreak()">Submit Breaks</button>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">↻ Quick Engine Controls</div></div>
+            <div class="panel-body" style="display:flex;flex-direction:column;gap:10px">
+              <button class="btn btn-secondary" onclick="recalcHeadcount()">Recalculate Headcount</button>
+              <button class="btn btn-secondary" onclick="loadBalancing()">Run Balancing Engine</button>
+              <button class="btn btn-secondary" onclick="loadLiveRefresh()">Refresh Live Monitor</button>
+              <button class="btn btn-secondary" onclick="loadExceptions()">Reload Exception Logs</button>
+              <button class="btn btn-secondary" onclick="loadBreakCalendar()">Reload Break Calendar</button>
+              <button class="btn btn-secondary" onclick="loadLogs()">Reload Activity Logs</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN TOOLS -->
+      <div class="view" id="view-admin">
+        <div class="page-header">
+          <div><div class="page-title">Admin Tools</div><div class="page-subtitle">ACCESS CONTROL · REORGANISER · SYSTEM SETUP</div></div>
+        </div>
+        <div class="two-col">
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">⬢ Access Control</div><div class="panel-controls"><button class="btn btn-ghost btn-sm" onclick="loadAccessControl()">↻</button></div></div>
+            <div class="panel-body" style="display:flex;flex-direction:column;gap:12px">
+              <div class="form-group"><div class="form-label">Email</div><input class="form-input" id="acl-email" placeholder="user@example.com"></div>
+              <div class="form-row">
+                <div class="form-group"><div class="form-label">Role</div><select class="form-select" id="acl-role"><option>Agent</option><option>Team Coordinator</option><option>Manager</option><option>Admin</option></select></div>
+                <div class="form-group"><div class="form-label">Team Scope</div><input class="form-input" id="acl-team" placeholder="Team Alpha or blank=all"></div>
+              </div>
+              <div class="form-group"><div class="form-label">Display Name</div><input class="form-input" id="acl-name" placeholder="Full name"></div>
+              <button class="btn btn-primary" onclick="saveAccess()">Save Access</button>
+              <div class="data-table-wrap" style="max-height:260px"><table class="data-table"><thead><tr><th>Email</th><th>Role</th><th>Name</th><th>Team</th><th></th></tr></thead><tbody id="access-tbody"></tbody></table></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="panel">
+              <div class="panel-header"><div class="panel-title">↻ Reorganiser</div></div>
+              <div class="panel-body" style="display:flex;flex-direction:column;gap:10px">
+                <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);line-height:1.7">Scans roster, reconciles agent sheets, creates missing sheets from template.</div>
+                <button class="btn btn-primary" id="reorg-btn" onclick="runReorganiser()">Start Reorganiser</button>
+                <div id="reorg-status" style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);display:none"></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-header"><div class="panel-title">⚙ System Setup</div></div>
+              <div class="panel-body" style="display:flex;flex-direction:column;gap:10px">
+                <button class="btn btn-primary" id="init-btn" onclick="adminInitialize()">Initialize Core Sheets</button>
+                <button class="btn btn-secondary" id="mock-btn" onclick="setupMockData()">Create Mock Test Data</button>
+                <button class="btn btn-secondary" id="trig-btn" onclick="setupTriggers()">Setup 5-Min Triggers</button>
+                <div style="border-top:1px solid var(--border);padding-top:10px">
+                  <div class="form-label" style="margin-bottom:8px">Force State Override</div>
+                  <div class="form-row"><input class="form-input" id="override-agent" placeholder="Agent ID"><select class="form-select" id="override-state"><option>OFFLINE</option><option>ACTIVE</option><option>ONLINE</option><option>ABSENT</option></select></div>
+                  <button class="btn btn-danger" style="margin-top:8px;width:100%" onclick="overrideState()">Force State Override</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY LOGS -->
+      <div class="view" id="view-logs">
+        <div class="page-header">
+          <div><div class="page-title">Activity Logs</div><div class="page-subtitle">FULL AUDIT TRAIL · ALL ROLES · SYSTEM EVENTS</div></div>
+          <div class="page-actions"><button class="btn btn-secondary btn-sm" onclick="loadLogs()">↻ Refresh</button></div>
+        </div>
+        <div class="panel">
+          <div class="data-table-wrap">
+            <table class="data-table"><thead><tr><th>Timestamp</th><th>Event</th><th>Agent ID</th><th>Details</th><th>By</th></tr></thead><tbody id="logs-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div><!-- /main-wrap -->
+</div><!-- /layout -->
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Confirm</div>
+    <div id="modal-body"></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="modal-confirm" onclick="confirmModal()">Confirm</button></div>
+  </div>
+</div>
+
+<!-- IN-APP NOTIFICATION POPUP -->
+<div id="popup-notification">
+  <span class="popup-close" onclick="closePopup()">×</span>
+  <div class="popup-title" id="popup-title">⏰ Break Alert</div>
+  <div class="popup-body" id="popup-body"></div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+'use strict';
+window.GENESYS_X_MODE = '<?= mode ?>';
+
+/* ══════════════════════════════════════════
+   SVG LETTER-BY-LETTER SPARKLINE ANIMATION
+══════════════════════════════════════════ */
+// Logo animation is pure CSS (see .gl-letter / .gl-plus styles).
+// Total animation: 8 letters × 0.3s stagger + 3s draw + 2.2s fill = ~7.5s max
+// We trigger the logo shrink + card reveal after the last letter fills in.
+(function initLogoReveal() {
+  // Last tspan has --gd:2.1s, draw=3s, fill starts at 2.1+2.2=4.3s, fill=1.5s → done ~5.8s
+  const REVEAL_DELAY = 5800;
+  setTimeout(() => {
+    document.getElementById('signin-logo-wrap').classList.add('shifted');
+    document.getElementById('signin-sub').classList.add('show');
+    setTimeout(() => {
+      document.getElementById('signin-card').classList.add('show');
+      document.getElementById('signin-footer').classList.add('show');
+      updateSiRoleBadge();
+    }, 420);
+  }, REVEAL_DELAY);
+})();
+
+/* ══════════════════════════════════════════
+   SIGN-IN FLOW
+══════════════════════════════════════════ */
+let _siEmail = '';
+let _bootstrapData = null;
+let _bootstrapReady = false;
+let _signinPending = false;
+
+function updateSiRoleBadge() {
+  const mode = (new URLSearchParams(location.search).get('mode')||'').toLowerCase();
+  const badge = document.getElementById('si-role-badge');
+  if (!badge) return;
+  const labelMap  = { coordinator:'COORDINATOR', manager:'MANAGER', farhan:'ADMIN' };
+  const colorMap  = { coordinator:'var(--green)', manager:'var(--purple)', farhan:'var(--cyan)' };
+  const borderMap = { coordinator:'rgba(16,185,129,.3)', manager:'rgba(167,139,250,.3)', farhan:'rgba(34,211,238,.3)' };
+  const bgMap     = { coordinator:'rgba(16,185,129,.1)', manager:'rgba(167,139,250,.1)', farhan:'rgba(34,211,238,.1)' };
+  badge.textContent    = labelMap[mode] || 'AGENT';
+  badge.style.color    = colorMap[mode] || 'var(--blue-bright)';
+  badge.style.borderColor = borderMap[mode] || 'rgba(59,130,246,.3)';
+  badge.style.background  = bgMap[mode]    || 'rgba(59,130,246,.1)';
+}
+// Run immediately so badge is correct before card animates in
+updateSiRoleBadge();
+
+// Start bootstrap silently in background as soon as page loads
+function silentBootstrap() {
+  const mode = window.GENESYS_X_MODE || new URLSearchParams(location.search).get('mode') || '';
+  new Promise((res,rej) => {
+    google.script.run
+      .withSuccessHandler(res)
+      .withFailureHandler(e => rej(new Error(e.message||String(e))))
+      .gxBootstrap(mode);
+  }).then(data => {
+    _bootstrapData = data;
+    _bootstrapReady = true;
+    // If sign-in is waiting for this
+    if (_signinPending) finishSignIn();
+  }).catch(e => {
+    _bootstrapData = { error: e.message };
+    _bootstrapReady = true;
+    if (_signinPending) finishSignIn();
+  });
+}
+// Start immediately
+try { silentBootstrap(); } catch(e) {}
+
+function doSignIn() {
+  const emailEl = document.getElementById('si-email');
+  const errEl   = document.getElementById('si-error');
+  const btn     = document.getElementById('si-btn');
+  const btnTxt  = document.getElementById('si-btn-text');
+  const email   = (emailEl ? emailEl.value : '').trim().toLowerCase();
+
+  if (!email || !email.includes('@')) {
+    errEl.textContent = 'Please enter your work email address.';
+    errEl.classList.add('show'); return;
+  }
+  errEl.classList.remove('show');
+  _siEmail = email;
+  btn.classList.add('loading');
+  btnTxt.textContent = 'Verifying…';
+
+  if (_bootstrapReady) {
+    setTimeout(finishSignIn, 400);
+  } else {
+    _signinPending = true;
+    // Show spinner while waiting
+    btnTxt.textContent = 'Loading data…';
+  }
+}
+
+function finishSignIn() {
+  _signinPending = false;
+  const errEl = document.getElementById('si-error');
+
+  if (_bootstrapData && _bootstrapData.error) {
+    errEl.textContent = 'Access denied: ' + _bootstrapData.error;
+    errEl.classList.add('show');
+    const btn = document.getElementById('si-btn');
+    const btnTxt = document.getElementById('si-btn-text');
+    btn.classList.remove('loading');
+    btnTxt.textContent = 'Continue →';
+    return;
+  }
+
+  // Validate email matches context
+  if (_bootstrapData && _bootstrapData.context && _bootstrapData.context.email) {
+    const serverEmail = String(_bootstrapData.context.email).trim().toLowerCase();
+    if (serverEmail && serverEmail !== _siEmail) {
+      errEl.textContent = 'Email does not match the authenticated Google account. Please use your work email.';
+      errEl.classList.add('show');
+      const btn = document.getElementById('si-btn');
+      const btnTxt = document.getElementById('si-btn-text');
+      btn.classList.remove('loading');
+      btnTxt.textContent = 'Continue →';
+      return;
+    }
+  }
+
+  // Transition out
+  const screen = document.getElementById('signin-screen');
+  screen.classList.add('whoosh');
+  setTimeout(() => {
+    screen.classList.add('done');
+    showPortal(_bootstrapData);
+  }, 800);
+}
+
+/* ══════════════════════════════════════════
+   PORTAL BOOTSTRAP
+══════════════════════════════════════════ */
+const GXApp = {
+  context:null, routes:[], agents:[], live:[], stats:{},
+  headcount:null, balancing:null, breakCalendar:null,
+  accessRows:[], perfRows:[], kpiConfig:null,
+  currentHcWeek:0, monitorFilter:'', hcShowAll:false,
+  modalCallback:null, liveAutoSync:null, calDragData:null,
+  lastBreakHash:'', breakNotif10:false, breakNotif3:false, shiftNotif15:false,
+  breakSubmittedLocally:false, localBreaks:null
+};
+
+const DEFAULT_KPIS = [
+  {key:'efficiency',name:'Efficiency',target:90,desc:'Productive output ratio vs scheduled time.',higherBetter:true,unit:'%'},
+  {key:'quality',name:'Quality',target:90,desc:'QA audit score average.',higherBetter:true,unit:'%'},
+  {key:'nps',name:'NPS',target:-10,desc:'Net Promoter Score from surveys.',higherBetter:true,unit:''},
+  {key:'aht',name:'AHT',target:12,desc:'Average Handle Time in minutes.',higherBetter:false,unit:'m'},
+  {key:'activeTime',name:'Active Time',target:85,desc:'% of shift time actively handling.',higherBetter:true,unit:'%'}
+];
+
+function showPortal(data) {
+  document.getElementById('layout').style.display = 'flex';
+  startClock();
+  document.getElementById('sidebar-date').textContent =
+    new Date().toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'short',year:'numeric'});
+  const bcDate = document.getElementById('bc-date');
+  if (bcDate) bcDate.value = todayYmd();
+  const exDate = document.getElementById('ex-date');
+  if (exDate) exDate.value = todayYmd();
+
+  loadKpiConfig();
+  updateExceptionFields();
+  applyBootstrap(data);
+
+  GXApp.liveAutoSync = setInterval(() => {
+    if (GXApp.routes.indexOf('monitor') !== -1) loadLive(true);
+  }, 60000);
+  setInterval(tickAllCountdowns, 1000);
+  setInterval(updateCalNowLine, 30000);
+}
+
+function applyBootstrap(res) {
+  if (!res) return;
+  GXApp.context  = res.context;
+  GXApp.routes   = res.routes  || [];
+  GXApp.agents   = res.agents  || [];
+  GXApp.live     = (res.live && res.live.rows) || [];
+  GXApp.stats    = res.stats   || {};
+
+  renderUser(res.context);
+  renderRoutes(res.defaultView || 'agent');
+  populateAgentSelects();
+  renderStats(GXApp.stats);
+  renderMonitor();
+  renderAgentPortal();
+
+  if (GXApp.routes.includes('exceptions'))    loadExceptions();
+  if (GXApp.routes.includes('balancing'))     loadBalancing();
+  if (GXApp.routes.includes('logs'))          loadLogs();
+  if (GXApp.routes.includes('breakCalendar')) loadBreakCalendar();
+  if (GXApp.routes.includes('performance'))   loadPerformance();
+
+  if (res.context && res.context.accessLocked && res.context.accessMessage) {
+    const b = document.getElementById('agent-lock-banner');
+    const m = document.getElementById('agent-lock-msg');
+    if (b) b.classList.remove('hidden');
+    if (m) m.textContent = res.context.accessMessage;
+  }
+  toast('Genesys + online', 'success');
+}
+
+async function refreshAll() {
+  const btn = document.getElementById('refresh-main-btn');
+  if (btn) { btn.textContent = '↻ Syncing…'; btn.classList.add('spin-loading'); btn.disabled = true; }
+  try {
+    const mode = window.GENESYS_X_MODE || new URLSearchParams(location.search).get('mode') || '';
+    const res = await new Promise((res,rej) => {
+      google.script.run
+        .withSuccessHandler(res)
+        .withFailureHandler(e => rej(new Error(e.message||String(e))))
+        .gxBootstrap(mode);
+    });
+    _bootstrapData = res;
+    applyBootstrap(res);
+    toast('Portal refreshed', 'success');
+  } catch(e) { toast('Refresh failed: ' + e.message, 'error'); }
+  finally {
+    if (btn) { btn.textContent = '↻ Refresh'; btn.classList.remove('spin-loading'); btn.disabled = false; }
+  }
+}
+
+/* ── USER ── */
+function renderUser(ctx) {
+  const name = ctx && ctx.name ? ctx.name : 'Genesys User';
+  const role = ctx && ctx.role ? ctx.role : 'AGENT';
+  setText('user-name', name);
+  setText('user-avatar', name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase());
+  const rb = document.getElementById('role-badge');
+  if (rb) { rb.textContent = role.replace(/_/g,' '); rb.className = 'role-badge ' + role.toLowerCase(); }
+}
+
+/* ── ROUTES ── */
+function renderRoutes(defaultView) {
+  const visible = new Set(GXApp.routes);
+  if (visible.has('accessControl') || visible.has('reorganizer')) visible.add('admin');
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('hidden', !visible.has(item.dataset.view)));
+  document.querySelectorAll('.nav-section[data-section]').forEach(section => {
+    let el = section.nextElementSibling; let hasVisible = false;
+    while (el && !el.classList.contains('nav-section') && !el.classList.contains('sidebar-footer')) {
+      if (el.classList.contains('nav-item') && !el.classList.contains('hidden')) { hasVisible = true; break; }
+      el = el.nextElementSibling;
+    }
+    section.classList.toggle('hidden', !hasVisible);
+  });
+  switchView(defaultView);
+}
+
+function switchView(viewId) {
+  if (GXApp.routes.length && !GXApp.routes.includes(viewId) && viewId !== 'admin') return toast('Access denied','error');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const view = document.getElementById('view-'+viewId);
+  const nav  = document.querySelector('[data-view="'+viewId+'"]');
+  if (view) view.classList.add('active');
+  if (nav)  nav.classList.add('active');
+  if (viewId === 'headcount')     loadHeadcount();
+  if (viewId === 'breakCalendar') loadBreakCalendar();
+  if (viewId === 'admin')         loadAccessControl();
+  if (viewId === 'monitor')       renderMonitor();
+}
+
+/* ── SIDEBAR TOGGLE ── */
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  sb.classList.toggle('collapsed');
+  const toggle = sb.querySelector('.sidebar-toggle');
+  if (toggle) toggle.textContent = sb.classList.contains('collapsed') ? '▸' : '◂';
+}
+
+/* ── CLOCK ── */
+function startClock() {
+  const el = document.getElementById('clock');
+  const tick = () => { if(el) el.textContent = new Date().toLocaleTimeString('en-US',{hour12:false}); };
+  tick(); setInterval(tick, 1000);
+}
+
+/* ── API ── */
+function api(action, payload) {
+  payload = payload || {};
+  if (!payload.mode) payload.mode = window.GENESYS_X_MODE || new URLSearchParams(location.search).get('mode') || '';
+  if (_siEmail && !payload._siEmail) payload._siEmail = _siEmail;
+  return new Promise((res,rej) => {
+    google.script.run
+      .withSuccessHandler(r => (r && r.ok === false) ? rej(new Error(r.error||'Failed')) : res(r))
+      .withFailureHandler(e => rej(new Error(e.message||String(e))))
+      .gxApi(action, payload);
+  });
+}
+
+/* ══════════════════════════════════════════
+   LIVE MONITOR
+══════════════════════════════════════════ */
+async function loadLive(silent) {
+  try {
+    if (!silent) {
+      const btn = document.getElementById('refresh-main-btn');
+      if (btn) { btn.textContent = '↻ Syncing…'; btn.classList.add('spin-loading'); btn.disabled = true; }
+    }
+    const res = await api('liveMonitor', {});
+    GXApp.live = res.rows || []; GXApp.stats = res.stats || {};
+    renderStats(GXApp.stats); renderMonitor(); renderAgentPortal();
+    if (!silent) toast('Live monitor refreshed', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+  finally {
+    if (!silent) {
+      const btn = document.getElementById('refresh-main-btn');
+      if (btn) { btn.textContent = '↻ Refresh'; btn.classList.remove('spin-loading'); btn.disabled = false; }
+    }
+  }
+}
+async function loadLiveRefresh() { await loadLive(false); }
+
+function renderStats(s) {
+  s = s || {};
+  setText('stat-online',  s.online  ?? 0);
+  setText('stat-active',  s.active  ?? 0);
+  setText('stat-idle',    s.idle    ?? 0);
+  setText('stat-absent',  s.absent  ?? 0);
+  setText('stat-break',   s.break   ?? 0);
+  setText('stat-alerts',  s.alerts  ?? 0);
+  setText('badge-alerts', s.alerts  ?? 0);
+}
+
+let _monitorGlobalFilter = '';
+function filterMonitor(statusStr, el) {
+  if (el && el.classList.contains('active-filter')) {
+    document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active-filter'));
+    _monitorGlobalFilter = '';
+    document.getElementById('monitor-filter-label').style.display = 'none';
+  } else {
+    document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active-filter'));
+    if (el) el.classList.add('active-filter');
+    _monitorGlobalFilter = statusStr;
+    const lbl = document.getElementById('monitor-filter-label');
+    lbl.textContent = 'Filter: ' + statusStr.replace(',','/');
+    lbl.style.display = 'inline-flex';
+  }
+  renderMonitor();
+}
+
+function renderMonitor() {
+  const q      = (document.getElementById('monitor-search')?.value||'').toLowerCase();
+  const gf     = _monitorGlobalFilter;
+  const rows   = (GXApp.live||[]).filter(r => {
+    if (q && !r.name.toLowerCase().includes(q) && !(r.id||'').toLowerCase().includes(q)) return false;
+    if (gf) {
+      const pts = gf.split(',');
+      // For monitor: absent exception shows as OFFLINE in status
+      const effectiveStatus = r.exception === 'Absent' ? 'OFFLINE' : r.status;
+      if (!pts.some(p => effectiveStatus === p || r.risk === p)) return false;
+    }
+    return true;
+  });
+  const tbody = document.getElementById('monitor-tbody');
+  if (!rows.length) return empty(tbody, 10, 'No rows match.');
+  tbody.innerHTML = rows.map(r => {
+    // Absent shows as OFFLINE in status column, exception shows Absent
+    const displayStatus = r.exception === 'Absent' ? 'OFFLINE' : r.status;
+    return `<tr>
+      <td class="agent-name">${esc(r.name)}</td>
+      <td class="mono">${esc(r.id)}</td>
+      <td class="mono">${esc(r.shift)}</td>
+      <td><span class="tag">${esc(r.team)}</span></td>
+      <td>${renderBreakCountdownCell(r)}</td>
+      <td>${statusChip(displayStatus)}</td>
+      <td>${r.exception ? statusChip(r.exception) : '<span class="tag">NONE</span>'}</td>
+      <td class="mono" style="color:var(--text-secondary)">${esc(r.lastActivity)}</td>
+      <td>${riskChip(r.risk)}</td>
+      <td>
+        <div class="action-menu">
+          <button class="btn btn-ghost btn-xs" onclick="toggleAction(this)">Actions ▾</button>
+          <div class="action-dropdown">
+            <div class="action-item" onclick="queueException('${js(r.id)}','Absent')">Mark Absent</div>
+            <div class="action-item" onclick="queueException('${js(r.id)}','Late Arrival')">Late Arrival</div>
+            <div class="action-item" onclick="queueException('${js(r.id)}','Early Departure')">Early Departure</div>
+            <div class="action-item" onclick="queueException('${js(r.id)}','Overtime')">Add Overtime</div>
+            <div class="action-item" onclick="goManagerBreakSubmit('${js(r.id)}')">Submit Breaks</div>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderBreakCountdownCell(row) {
+  if (!row.nextBreak) return '<span class="tag">—</span>';
+  const b = row.nextBreak;
+  const nowMs = Date.now();
+  let timeText, cls;
+  if (b.ongoing) {
+    const remSec = Math.max(0, Math.floor((b.endMs - nowMs) / 1000));
+    const remMins = Math.floor(remSec / 60), remSecPart = remSec % 60;
+    timeText = `${esc(b.label)} · ${pad(remMins)}:${pad(remSecPart)}`; cls = 'chip active';
+  } else {
+    const remSec = Math.max(0, Math.floor((b.startMs - nowMs) / 1000));
+    if (remSec < 3600) {
+      const m = Math.floor(remSec/60), s = remSec%60;
+      timeText = `${esc(b.label)} in ${pad(m)}:${pad(s)}`;
+    } else {
+      const h = Math.floor(remSec/3600), m = Math.floor((remSec%3600)/60);
+      timeText = `${esc(b.label)} in ${pad(h)}:${pad(m)}`;
+    }
+    cls = 'chip idle';
+  }
+  // Store copy data in data attrs to avoid inline JS escaping issues
+  const _id  = String(row.id   || '').replace(/"/g,'&quot;');
+  const _nm  = String(row.name || '').replace(/"/g,'&quot;');
+  const _brk = String(b.label  || '').replace(/"/g,'&quot;');
+  return `<span class="${cls}" style="cursor:pointer" title="Click to copy break message"
+    data-cid="${_id}" data-cnm="${_nm}" data-cbrk="${_brk}"
+    onclick="copyBreakChip(this)"><span class="chip-dot"></span>${timeText}</span>`;
+}
+
+/* ── AGENT SELECTS ── */
+function populateAgentSelects() {
+  const opts = GXApp.agents.map(a => `<option value="${escAttr(a.id)}">${esc(a.name)} (${esc(a.id)})</option>`).join('');
+  ['ex-agent','mgr-break-agent'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = opts; });
+}
+
+function queueException(agentId, type) {
+  switchView('exceptions');
+  const el = document.getElementById('ex-agent'), et = document.getElementById('ex-type');
+  if(el) el.value = agentId; if(et) { et.value = type; updateExceptionFields(); }
+}
+function goManagerBreakSubmit(agentId) {
+  switchView('manager');
+  const el = document.getElementById('mgr-break-agent');
+  if(el) { el.value = agentId; renderManagerBreakSlots(); }
+}
+
+/* ══════════════════════════════════════════
+   AGENT PORTAL
+══════════════════════════════════════════ */
+function getOwnLiveRow() {
+  const email = ((GXApp.context && GXApp.context.email) || '').trim().toLowerCase();
+  const aId   = GXApp.context && GXApp.context.agentId;
+  // Only exact non-empty email match
+  if (email) {
+    const byEmail = (GXApp.live||[]).find(r => {
+      const re = String(r.email||'').trim().toLowerCase();
+      return re && re === email;
+    });
+    if (byEmail) return byEmail;
+  }
+  // Fallback: agent ID match
+  if (aId) {
+    const byId = (GXApp.live||[]).find(r => String(r.id||'').trim() === String(aId).trim());
+    if (byId) return byId;
+  }
+  // Never fall back to index 0 — that causes wrong-agent data to show
+  return null;
+}
+
+function renderAgentPortal() {
+  const row = getOwnLiveRow();
+  if (!row) return;
+
+  // Name
+  setText('agent-full-name', row.name);
+  setText('agent-role-label', row.role || 'Agent');
+
+  // Status ring
+  const s = (row.status || '').toUpperCase();
+  const ring = document.getElementById('agent-ring');
+  if (ring) {
+    ring.className = 'agent-status-ring ' + (
+      s === 'ABSENT'                    ? 'status-absent'  :
+      s.includes('WRAP') || s.includes('LUNCH') ? 'status-wrap' :
+      s === 'BREAK'                     ? 'status-break'   :
+      s === 'OFFLINE'                   ? 'status-offline' : 'status-online'
+    );
+  }
+  setText('agent-state-label', s);
+  setText('agent-shift',       'Shift: ' + (row.shift || '--'));
+  setText('agent-team',        'Team: '  + (row.team  || '--'));
+
+  // Absent agent: no breaks shown at all
+  const isAbsent = (row.exception === 'Absent' && row.exceptionStatus !== 'Recovered')
+                || (row.status === 'ABSENT');
+
+  // If locally submitted, use local data
+  const hasBreaks = isAbsent ? false : (GXApp.breakSubmittedLocally
+    ? !!GXApp.localBreaks
+    : (row.breakSubmitted && row.breaks && row.breaks.length > 0));
+
+  const breaks = (isAbsent || !hasBreaks) ? [] : (GXApp.breakSubmittedLocally ? GXApp.localBreaks : (row.breaks || []));
+
+  setText('agent-break-status', isAbsent ? 'Absent' : hasBreaks ? 'Break: Submitted ✓' : 'Break: Pending');
+
+  if (isAbsent) {
+    document.getElementById('agent-break-cards').innerHTML = '';
+    document.getElementById('break-submit-panel').classList.add('hidden');
+    // Show absent message
+    const bc = document.getElementById('agent-break-cards');
+    if (bc) bc.innerHTML = '<div class="break-locked-msg"><span class="lock-icon">⛔</span>You are marked absent today. Break submission is not available.</div>';
+  } else if (hasBreaks && breaks.length) {
+    // Show break cards
+    renderAgentBreakCards(breaks);
+    document.getElementById('break-submit-panel').classList.add('hidden');
+    if (!GXApp.breakSubmittedLocally) GXApp.lastBreakHash = JSON.stringify(row.breaks);
+  } else {
+    document.getElementById('agent-break-cards').innerHTML = '';
+    document.getElementById('break-submit-panel').classList.remove('hidden');
+    renderBreakSubmitOrLocked(row);
+  }
+
+  // Countdown panel (before breaks: show time to break submission deadline or shift info)
+  if (!hasBreaks) {
+    updateCountdownPreBreak(row);
+  }
+}
+
+function renderAgentBreakCards(breaks) {
+  const container = document.getElementById('agent-break-cards');
+  if (!container) return;
+  const now = Date.now();
+  container.innerHTML = breaks.map((b, i) => {
+    const past = now > b.endMs, ongoing = now >= b.startMs && now <= b.endMs;
+    const minsRem = Math.max(0, Math.round((b.startMs - now) / 60000));
+    const h = Math.floor(minsRem/60), m = minsRem%60;
+    let cdText = '', cls = '';
+    if (past)    { cdText = 'Completed ✓'; cls = 'done'; }
+    else if (ongoing) { const rem = Math.max(0, Math.round((b.endMs - now) / 60000)); cdText = `${pad(rem)}:00 remaining`; cls = 'ongoing'; }
+    else         { cdText = `in ${pad(h)}:${pad(m)}`; cls = 'active'; }
+    return `<div class="break-countdown-card ${cls}" id="break-card-${i}">
+      <div style="width:36px;height:36px;border-radius:50%;background:rgba(59,130,246,.15);border:2px solid rgba(59,130,246,.3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">☕</div>
+      <div style="flex:1">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);letter-spacing:.1em">${esc(b.label)}</div>
+        <div style="font-weight:600;font-size:13px;margin-top:2px">${esc(b.start)} &nbsp;·&nbsp; ${b.duration} min</div>
+      </div>
+      <div class="cd-time ${ongoing?'purple':''}" id="cd-${i}">${esc(cdText)}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── COUNTDOWN PRE-BREAK: shows submission window timer ── */
+function updateCountdownPreBreak(row) {
+  if (!row) return;
+  const now = Date.now();
+  const shiftStartMs = row.shiftStartMs;
+  const minsFromStart = shiftStartMs ? (now - shiftStartMs) / 60000 : -999;
+  const minsToStart   = shiftStartMs ? (shiftStartMs - now) / 60000 : 999;
+  const WINDOW = 90; // minutes
+  const el = document.getElementById('agent-shift-countdown');
+  const hdr = document.getElementById('cd-header');
+
+  if (minsToStart > 15) {
+    // Shift not started yet
+    if (hdr) hdr.textContent = 'SHIFT STARTS IN';
+    if (el) { el.textContent = formatCountdown(shiftStartMs - now); el.className = 'countdown-value'; }
+  } else if (minsFromStart >= 0 && minsFromStart <= WINDOW) {
+    // Within submission window
+    const windowEndMs = shiftStartMs + WINDOW * 60000;
+    if (hdr) hdr.textContent = 'SUBMIT BREAKS IN';
+    if (el) { el.textContent = formatCountdown(windowEndMs - now); el.className = 'countdown-value amber'; }
+  } else if (minsFromStart > WINDOW) {
+    // Window passed
+    if (hdr) hdr.textContent = 'WINDOW CLOSED';
+    if (el) { el.textContent = '00:00:00'; el.className = 'countdown-value red'; }
+  }
+}
+
+/* ── COUNTDOWN AFTER BREAKS: next break / on break / shift ending ── */
+function updateCountdownPostBreak(row, breaks) {
+  if (!row || !breaks || !breaks.length) return;
+  const now = Date.now();
+  const el  = document.getElementById('agent-shift-countdown');
+  const hdr = document.getElementById('cd-header');
+
+  // Find next or ongoing break
+  let nextBreak = null, ongoingBreak = null;
+  for (const b of breaks) {
+    if (now >= b.startMs && now <= b.endMs) { ongoingBreak = b; break; }
+    if (b.startMs > now) { nextBreak = b; break; }
+  }
+
+  if (ongoingBreak) {
+    if (hdr) hdr.textContent = 'BREAK ENDS IN';
+    if (el) { el.textContent = formatCountdown(ongoingBreak.endMs - now); el.className = 'countdown-value purple'; }
+  } else if (nextBreak) {
+    if (hdr) hdr.textContent = 'NEXT BREAK IN';
+    if (el) { el.textContent = formatCountdown(nextBreak.startMs - now); el.className = 'countdown-value'; }
+  } else {
+    // All breaks done → show shift ending
+    const shiftEndMs = row.shiftEndMs;
+    if (shiftEndMs) {
+      if (hdr) hdr.textContent = 'SHIFT ENDS IN';
+      if (el) { el.textContent = formatCountdown(shiftEndMs - now); el.className = 'countdown-value green'; }
+    }
+  }
+}
+
+function formatCountdown(ms) {
+  ms = Math.max(0, ms);
+  const s = Math.floor(ms / 1000);
+  return pad(Math.floor(s/3600)) + ':' + pad(Math.floor((s%3600)/60)) + ':' + pad(s%60);
+}
+
+/* ── MASTER TICK ── */
+function tickAllCountdowns() {
+  const row    = getOwnLiveRow(); if (!row) return;
+  const breaks = GXApp.breakSubmittedLocally ? GXApp.localBreaks : (row.breaks || []);
+  const hasBreaks = GXApp.breakSubmittedLocally || (row.breakSubmitted && breaks && breaks.length);
+
+  if (hasBreaks && breaks && breaks.length) {
+    updateCountdownPostBreak(row, breaks);
+    tickBreakCards(breaks);
+    checkBreakNotifications(row, breaks);
+    updateAgentStatusFromBreaks(row, breaks);
+  } else {
+    updateCountdownPreBreak(row);
+    updateAgentStatus(row);
+  }
+  checkShiftNotifications(row, breaks, hasBreaks);
+}
+
+function tickBreakCards(breaks) {
+  const now = Date.now();
+  breaks.forEach((b, i) => {
+    const el = document.getElementById('cd-' + i);
+    const card = document.getElementById('break-card-' + i);
+    if (!el) return;
+    if (now > b.endMs) {
+      el.textContent = 'Completed ✓'; el.className = 'cd-time';
+      if (card) { card.classList.remove('active','ongoing'); card.classList.add('done'); }
+    } else if (now >= b.startMs) {
+      const rem = Math.max(0, Math.floor((b.endMs - now) / 1000));
+      el.textContent = pad(Math.floor(rem/60)) + ':' + pad(rem%60) + ' remaining';
+      el.className = 'cd-time purple';
+      if (card) { card.classList.remove('active','done'); card.classList.add('ongoing'); }
+    } else {
+      const rem = Math.max(0, Math.floor((b.startMs - now) / 1000));
+      el.textContent = 'in ' + pad(Math.floor(rem/3600)) + ':' + pad(Math.floor((rem%3600)/60)) + ':' + pad(rem%60);
+      el.className = 'cd-time';
+      if (card) { card.classList.remove('ongoing','done'); card.classList.add('active'); }
+    }
+  });
+}
+
+/* ── BREAK NOTIFICATIONS ── */
+function checkBreakNotifications(row, breaks) {
+  const now = Date.now();
+  for (const b of breaks) {
+    if (b.startMs <= now) continue; // skip past/ongoing
+    const minsTo = (b.startMs - now) / 60000;
+
+    if (minsTo <= 10 && minsTo > 9.5 && !GXApp.breakNotif10) {
+      GXApp.breakNotif10 = true;
+      showPopup('⏰ Break Starting Soon',
+        `You have a <strong>${b.label}</strong> starting in 10 minutes.<br>Please change your chat portal status to <strong>Shift Wrap Up</strong>.`);
+      updateRingToWrap();
+    }
+    if (minsTo <= 3 && minsTo > 2.5 && !GXApp.breakNotif3) {
+      GXApp.breakNotif3 = true;
+      showPopup('☕ Break Starting in 3 Minutes',
+        `Your <strong>${b.label}</strong> is starting within 3 minutes.<br>
+        Please change your chat portal status to <strong>Lunch</strong>, and reach out to your Team Lead for marking your break on the MB Portal.`);
+    }
+    break; // only check next break
+  }
+
+  // Check break end notification
+  for (const b of breaks) {
+    if (now >= b.startMs && now >= b.endMs - 2000 && now <= b.endMs + 5000) {
+      showPopup('✅ Break Over',
+        `Break time is over. Make sure to double check ending your break on the <strong>MB Portal</strong> and change your chat portal status to <strong>Online</strong>.`);
+      GXApp.breakNotif10 = false;
+      GXApp.breakNotif3  = false;
+      break;
+    }
+  }
+}
+
+function checkShiftNotifications(row, breaks, hasBreaks) {
+  if (!row || !row.shiftEndMs) return;
+  const now = Date.now();
+  const minsToEnd = (row.shiftEndMs - now) / 60000;
+  if (minsToEnd <= 15 && minsToEnd > 14.5 && !GXApp.shiftNotif15) {
+    GXApp.shiftNotif15 = true;
+    showPopup('🏁 Shift Ending Soon',
+      `Your shift is ending in <strong>15 minutes</strong>.<br>Please change your chat portal status to <strong>Shift Wrap Up</strong>.`);
+  }
+}
+
+function updateRingToWrap() {
+  const ring = document.getElementById('agent-ring');
+  if (ring) ring.className = 'agent-status-ring status-wrap';
+  setText('agent-state-label', 'SHIFT WRAP UP');
+}
+
+function updateAgentStatus(row) {
+  if (!row) return;
+  const now = Date.now();
+  let s = row.status;
+  if (row.shiftEndMs) {
+    const mte = (row.shiftEndMs - now) / 60000;
+    if (mte <= 0) s = 'OFFLINE';
+    else if (mte <= 20 && s === 'ONLINE') s = 'SHIFT WRAP UP';
+  }
+  if (s !== row.status) {
+    setText('agent-state-label', s);
+    const ring = document.getElementById('agent-ring');
+    if (ring) ring.className = 'agent-status-ring ' + (s === 'OFFLINE' ? 'status-offline' : s.includes('WRAP') ? 'status-wrap' : 'status-online');
+  }
+}
+
+function updateAgentStatusFromBreaks(row, breaks) {
+  if (!row) return;
+  const now = Date.now();
+  let newStatus = row.status;
+  for (const b of breaks) {
+    if (now >= b.startMs && now <= b.endMs) { newStatus = 'BREAK'; break; }
+    const wrapStart = b.startMs - 10*60000;
+    if (now >= wrapStart && now < b.startMs) { newStatus = 'BREAK WRAP UP'; break; }
+  }
+  if (row.shiftEndMs) {
+    const mte = (row.shiftEndMs - now) / 60000;
+    if (mte <= 0) newStatus = 'OFFLINE';
+  }
+  const label = document.getElementById('agent-state-label');
+  const ring  = document.getElementById('agent-ring');
+  if (label) label.textContent = newStatus;
+  if (ring) ring.className = 'agent-status-ring ' + (
+    newStatus === 'OFFLINE'  ? 'status-offline' :
+    newStatus === 'BREAK'    ? 'status-break'   :
+    newStatus.includes('WRAP') ? 'status-wrap'  : 'status-online'
+  );
+}
+
+/* ── POPUP NOTIFICATION ── */
+let _popupTimer = null;
+function showPopup(title, body) {
+  const el = document.getElementById('popup-notification');
+  const t  = document.getElementById('popup-title');
+  const b  = document.getElementById('popup-body');
+  if (!el) return;
+  if (t) t.innerHTML = title;
+  if (b) b.innerHTML = body;
+  el.classList.add('show');
+  if (_popupTimer) clearTimeout(_popupTimer);
+  _popupTimer = setTimeout(closePopup, 15000);
+}
+function closePopup() {
+  const el = document.getElementById('popup-notification');
+  if (el) el.classList.remove('show');
+}
+
+/* ══════════════════════════════════════════
+   BREAK SUBMISSION
+══════════════════════════════════════════ */
+function renderBreakSubmitOrLocked(row) {
+  const body = document.getElementById('break-submit-body');
+  if (!body) return;
+
+  // Check conditions
+  const now = Date.now();
+  const shiftStartMs = row.shiftStartMs;
+  const shiftEndMs   = row.shiftEndMs;
+  const WINDOW = 90;
+
+  const minsToStart   = shiftStartMs ? (shiftStartMs - now) / 60000 : 999;
+  const minsFromStart = shiftStartMs ? (now - shiftStartMs) / 60000 : -999;
+  const pulseActive   = row.pulseActive;
+  const withinWindow  = minsToStart <= 15 || (minsFromStart >= 0 && minsFromStart <= WINDOW);
+
+  let lockReason = '';
+  if (!withinWindow && minsFromStart > WINDOW) lockReason = 'Break submission window has closed (90 minutes from shift start).';
+  else if (minsToStart > 15)                    lockReason = `Your shift starts in ${pad(Math.floor(minsToStart/60))}:${pad(Math.floor(minsToStart%60))} — submission opens 15 min before start.`;
+  else if (!pulseActive)                         lockReason = 'Your activity pulse is not detected. Please ensure you are logged into your work system.';
+
+  if (lockReason) {
+    body.innerHTML = `<div class="break-locked-msg">
+      <span class="lock-icon">🔒</span>
+      Break submission is currently locked.
+      <div class="lock-reason">${esc(lockReason)}</div>
+    </div>`;
+    return;
+  }
+
+  // Render selector UI
+  renderBreakSelectors(body);
+}
+
+function renderBreakSelectors(containerEl) {
+  if (!containerEl) return;
+  const plan = val('break-plan-select') || 'T1';
+  const showThird = plan === 'T2';
+
+  containerEl.innerHTML = `
+    <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:14px">
+      SELECT YOUR BREAK SLOTS — GREYED SLOTS ARE UNAVAILABLE
+    </div>
+    <div class="form-row" id="break-selectors-row">
+      <div class="form-group">
+        <div class="form-label">Break 1 (30 min)</div>
+        <div class="slot-grid" id="slot-br-b1"></div>
+        <input type="hidden" id="br-b1">
+      </div>
+      <div class="form-group">
+        <div class="form-label" id="b2-label">${showThird ? 'Break 2 (15 min)' : 'Break 2 (30 min)'}</div>
+        <div class="slot-grid" id="slot-br-b2"></div>
+        <input type="hidden" id="br-b2">
+      </div>
+    </div>
+    ${showThird ? `<div class="form-group" style="margin-top:12px">
+      <div class="form-label">Break 3 (15 min)</div>
+      <div class="slot-grid" id="slot-br-b3"></div>
+      <input type="hidden" id="br-b3">
+    </div>` : ''}
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+      <button class="btn btn-primary" id="submit-breaks-btn" onclick="submitBreakPlan()">Submit Break Plan</button>
+    </div>`;
+
+  populateBreakSlots();
+}
+
+function populateBreakSlots() {
+  const row  = getOwnLiveRow();
+  const plan = val('break-plan-select') || 'T1';
+  const showThird = plan === 'T2';
+
+  if (!row) return;
+
+  // Parse shift
+  const parseHHMM = t => { const m = String(t||'').match(/(\d{1,2}):(\d{2})/); return m ? +m[1]*60 + +m[2] : null; };
+  let shiftStartMin = 9*60, shiftEndMin = 18*60;
+  if (row.shift) {
+    const parts = row.shift.split(/[-–—]/);
+    shiftStartMin = parseHHMM(parts[0]) ?? shiftStartMin;
+    shiftEndMin   = parseHHMM(parts[1]) ?? shiftEndMin;
+    if (shiftEndMin <= shiftStartMin) shiftEndMin += 24*60;
+  }
+
+  // Build occupancy map from break calendar
+  const occupied = {};
+  ((GXApp.breakCalendar && GXApp.breakCalendar.events) || []).forEach(ev => {
+    const key = String(ev.time||'').slice(0,5);
+    occupied[key] = (occupied[key] || 0) + (ev.duration || 30);
+  });
+
+  const TOTAL_CAP = 60; // minutes per slot bucket
+  const LAST_HOUR_START = shiftEndMin - 60; // last hour begins here
+
+  function buildSlots(durationMin) {
+    const slots = [];
+    // No break in first 30 min
+    const earliest = shiftStartMin + 30;
+    // Last valid start: start of last hour (only one slot there)
+    const lastSlot = LAST_HOUR_START;
+    // Max minutes past hour for a slot
+    // For 30 min: up to :30 (i.e. minute offset 0,5,10,15,20,25,30)
+    // For 15 min: up to :45
+    const maxOffset = durationMin === 30 ? 30 : 45;
+
+    for (let m = earliest; m <= lastSlot; m += 5) {
+      const minuteOfHour = m % 60;
+      // Only include if minuteOfHour <= maxOffset, OR it's the exact start of an hour (m % 60 === 0)
+      if (minuteOfHour > maxOffset && minuteOfHour !== 0) continue;
+      // If this is the last hour, only allow the start (minuteOfHour === 0 at LAST_HOUR_START)
+      if (m > LAST_HOUR_START) continue;
+
+      const hh = Math.floor(m/60) % 24, mm = m % 60;
+      const time = pad(hh) + ':' + pad(mm);
+      const used = occupied[time] || 0;
+      slots.push({ time, available: used < TOTAL_CAP });
+    }
+    return slots;
+  }
+
+  const slots30 = buildSlots(30);
+  const slots15 = buildSlots(15);
+
+  renderSlotButtons('slot-br-b1', 'br-b1', slots30);
+  renderSlotButtons('slot-br-b2', 'br-b2', showThird ? slots15 : slots30);
+  if (showThird) renderSlotButtons('slot-br-b3', 'br-b3', slots15);
+}
+
+function renderSlotButtons(containerId, inputId, slots) {
+  const container = document.getElementById(containerId); if (!container) return;
+  container.innerHTML = slots.map(slot => `
+    <button type="button" class="slot-btn ${slot.available ? '' : 'disabled'}"
+      ${slot.available ? `onclick="selectBreakSlot('${inputId}','${slot.time}','${containerId}')"` : ''}>
+      ${slot.time}
+    </button>`).join('');
+}
+
+function selectBreakSlot(inputId, time, containerId) {
+  const input = document.getElementById(inputId); if (input) input.value = time;
+  document.querySelectorAll('#' + containerId + ' .slot-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.textContent.trim() === time);
+  });
+}
+
+async function submitBreakPlan() {
+  const me = getOwnLiveRow(); if (!me) return toast('No agent context', 'error');
+  const plan = val('break-plan-select') || 'T1';
+  const b1 = val('br-b1'), b2 = val('br-b2'), b3 = val('br-b3');
+  if (!b1 || !b2) return toast('Please select Break 1 and Break 2', 'error');
+  if (plan === 'T2' && !b3) return toast('Please select Break 3', 'error');
+  const selected = [b1, b2].concat(plan === 'T2' ? [b3] : []);
+  if (new Set(selected).size !== selected.length) return toast('Break times must be unique', 'error');
+
+  // Immediately lock UI with local breaks for instant feedback
+  const opYmd = todayYmd();
+  const makeBreakObj = (time, label, dur) => {
+    const dt = parseDateAt(opYmd, time);
+    return { label, start: time, startMs: dt, endMs: dt + dur*60000, duration: dur };
+  };
+  const localBreaks = [];
+  if (plan === 'T2') {
+    localBreaks.push(makeBreakObj(b1, 'T2-30B1', 30));
+    localBreaks.push(makeBreakObj(b2, 'T2-15B1', 15));
+    localBreaks.push(makeBreakObj(b3, 'T2-15B2', 15));
+  } else {
+    localBreaks.push(makeBreakObj(b1, 'T1-30B1', 30));
+    localBreaks.push(makeBreakObj(b2, 'T1-30B2', 30));
+  }
+  localBreaks.sort((a,b) => a.startMs - b.startMs);
+
+  // Lock in UI immediately
+  GXApp.breakSubmittedLocally = true;
+  GXApp.localBreaks = localBreaks;
+  renderAgentBreakCards(localBreaks);
+  document.getElementById('break-submit-panel').classList.add('hidden');
+  setText('agent-break-status', 'Break: Submitted ✓');
+  toast('Breaks locked in — syncing…', 'success');
+
+  // Submit in background
+  try {
+    const r = await api('submitBreak', {
+      agentId: me.id, name: me.name, email: me.email,
+      shift: me.shift, plan, shiftDate: opYmd, b1, b2, b3
+    });
+    toast(r.message || 'Breaks submitted', 'success');
+    GXApp.lastBreakHash = '';
+    await loadLive(true);
+  } catch(e) {
+    toast('Sync error: ' + e.message, 'error');
+  }
+}
+
+function parseDateAt(ymd, hhmm) {
+  const p = ymd.split('-').map(Number);
+  const parts = hhmm.split(':');
+  return new Date(p[0], p[1]-1, p[2], parseInt(parts[0]), parseInt(parts[1]), 0).getTime();
+}
+
+/* ══════════════════════════════════════════
+   EXCEPTIONS
+══════════════════════════════════════════ */
+function updateExceptionFields() {
+  const type = document.getElementById('ex-type')?.value || '';
+  const wrap = document.getElementById('ex-dynamic-fields'); if (!wrap) return;
+  let html = '';
+  if (type === 'Late Arrival')      html = `<div class="form-group"><div class="form-label">Arrival Time</div><input class="form-input" type="time" id="ex-time-val"></div>`;
+  else if (type === 'Early Departure') html = `<div class="form-group"><div class="form-label">Departure Time</div><input class="form-input" type="time" id="ex-time-val"></div>`;
+  else if (type === 'Overtime')     html = `<div class="form-row"><div class="form-group"><div class="form-label">OT Start</div><input class="form-input" type="time" id="ex-ot-start"></div><div class="form-group"><div class="form-label">OT End</div><input class="form-input" type="time" id="ex-ot-end"></div></div><div class="form-group"><div class="form-label">OT Date</div><input class="form-input" type="date" id="ex-ot-date" value="${todayYmd()}"></div>`;
+  wrap.innerHTML = html;
+}
+
+async function submitException() {
+  const btn = document.getElementById('ex-submit-btn');
+  const orig = btn.textContent; btn.textContent = 'Submitting…'; btn.disabled = true;
+  try {
+    const type = val('ex-type'), agId = val('ex-agent'), date = val('ex-date') || todayYmd();
+    let timeVal = '', endTime = '', otDate = '';
+    if (type === 'Late Arrival' || type === 'Early Departure') { timeVal = val('ex-time-val'); if(!timeVal) { toast('Time value required','error'); return; } }
+    else if (type === 'Overtime') { timeVal = val('ex-ot-start'); endTime = val('ex-ot-end'); otDate = val('ex-ot-date') || date; if(!timeVal||!endTime) { toast('OT start and end required','error'); return; } }
+    const res = await api('submitException', { agentId:agId, type, date, timeValue:timeVal, endTime, otDate, notes:val('ex-notes'), source:'PORTAL' });
+    toast(res.message || 'Exception logged', 'success');
+    loadExceptions(); loadLive(true);
+  } catch(e) { toast(e.message, 'error'); }
+  finally { btn.textContent = orig; btn.disabled = false; }
+}
+
+async function loadExceptions() {
+  try {
+    const res = await api('exceptions', { limit:200 });
+    const tbody = document.getElementById('exceptions-tbody');
+    const rows  = res.rows || [];
+    if (!rows.length) return empty(tbody, 9, 'No exception logs.');
+    tbody.innerHTML = rows.map(r => `<tr>
+      <td class="mono">${esc(r.timestamp)}</td>
+      <td>${esc(r.agentName)}<div class="mono" style="color:var(--text-muted);font-size:10px">${esc(r.agentId)}</div></td>
+      <td>${esc(r.date)}</td><td>${statusChip(r.type)}</td>
+      <td>${esc(r.timeValue)}</td><td class="mono">${esc(r.duration)}</td>
+      <td><span class="tag">${esc(r.source)}</span></td>
+      <td><span class="tag">${esc(r.status)}</span></td>
+      <td><button class="btn btn-success btn-xs" onclick="markExceptionDone(${r.rowNumber})">✓ Done</button></td>
+    </tr>`).join('');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function markExceptionDone(rowNumber) {
+  try { const r = await api('markExceptionDone', {rowNumber}); toast(r.message||'Done','success'); loadExceptions(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+/* ══════════════════════════════════════════
+   HEADCOUNT
+══════════════════════════════════════════ */
+async function loadHeadcount() {
+  try {
+    const res = await api('headcountGrids', { weekIndex: GXApp.currentHcWeek, showAll: GXApp.hcShowAll });
+    renderHeadcountAll(res);
+  } catch(e) { toast(e.message, 'error'); }
+}
+async function recalcHeadcount() {
+  const btn = document.getElementById('recalc-btn');
+  if (btn) { btn.textContent = 'Calculating…'; btn.classList.add('spin-loading'); btn.disabled = true; }
+  try { const r = await api('headcount', {writeSheet:true}); toast(r.message||'Done','success'); loadHeadcount(); }
+  catch(e) { toast(e.message, 'error'); }
+  finally { if (btn) { btn.textContent = '↻ Recalculate'; btn.classList.remove('spin-loading'); btn.disabled = false; } }
+}
+
+function toggleHcView() {
+  GXApp.hcShowAll = !GXApp.hcShowAll;
+  const btn = document.getElementById('hc-view-toggle');
+  if (btn) btn.textContent = GXApp.hcShowAll ? 'Week View' : 'All 28 Days';
+  // Update week tab visibility
+  const tabsEl = document.getElementById('hc-week-tabs');
+  if (tabsEl) tabsEl.style.display = GXApp.hcShowAll ? 'none' : 'flex';
+  loadHeadcount();
+}
+
+function renderHeadcountAll(data) {
+  if (!data) return;
+  buildWeekTabs(data.weeks || []);
+  const cols = GXApp.hcShowAll ? 28 : 7;
+  renderHcGrid('hc-slots-grid',     data.slots,     'minutes', 60, false, cols);
+  renderHcGrid('hc-breaks-grid',    data.breaks,    'agents',  0,  true,  cols);
+  renderHcGrid('hc-adherence-grid', data.adherence, '%',       80, false, cols);
+  renderHcGrid('hc-live-grid',      data.live,      'agents',  5,  true,  cols);
+}
+
+function buildWeekTabs(weeks) {
+  const c = document.getElementById('hc-week-tabs'); if (!c || !weeks.length) return;
+  c.innerHTML = weeks.map((w, i) => `<div class="week-tab ${i===GXApp.currentHcWeek?'active':''}" onclick="selectHcWeek(${i})">${esc(w)}</div>`).join('');
+  c.style.display = GXApp.hcShowAll ? 'none' : 'flex';
+}
+function selectHcWeek(i) { GXApp.currentHcWeek = i; loadHeadcount(); }
+
+function renderHcGrid(cId, grid, unit, threshold, withNotes, numCols) {
+  const container = document.getElementById(cId);
+  if (!container || !grid || !grid.headers || !grid.rows) {
+    if (container) container.innerHTML = '<div class="empty-state">No data.</div>'; return;
+  }
+  const headers = numCols && numCols < grid.headers.length ? grid.headers.slice(0, numCols) : grid.headers;
+  let html = '<table class="hc-table" style="min-width:100%"><thead><tr><th class="row-head">Hour</th>';
+  headers.forEach(h => html += `<th>${esc(h)}</th>`);
+  html += '</tr></thead><tbody>';
+  grid.rows.forEach(row => {
+    html += `<tr><td class="row-head">${esc(row.label)}</td>`;
+    const cells = numCols ? row.cells.slice(0, numCols) : row.cells;
+    cells.forEach(cell => {
+      const v = Number(cell.value) || 0;
+      let cls = threshold > 0
+        ? (v >= threshold*1.2 ? 'hc-cell-high' : v >= threshold*.8 ? 'hc-cell-mid' : v > 0 ? 'hc-cell-low' : 'hc-cell-zero')
+        : (v > 0 ? 'hc-cell-mid' : 'hc-cell-zero');
+      const tip = withNotes && cell.note ? ` title="${escAttr(cell.note)}"` : '';
+      html += `<td class="${cls}"${tip}>${v > 0 ? esc(cell.display || v) : '—'}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+/* ══════════════════════════════════════════
+   BALANCING
+══════════════════════════════════════════ */
+async function loadBalancing() {
+  const btn = document.getElementById('analyze-btn');
+  if (btn) { btn.textContent = 'Analyzing…'; btn.classList.add('spin-loading'); btn.disabled = true; }
+  try {
+    const res = await api('balancing', {});
+    GXApp.balancing = res;
+    setText('badge-deficits', (res.deficits||[]).length);
+    renderBalancing(res);
+    toast('Analysis complete','success');
+  } catch(e) { toast(e.message, 'error'); }
+  finally { if (btn) { btn.textContent = '▶ Analyze Now'; btn.classList.remove('spin-loading'); btn.disabled = false; } }
+}
+
+function renderBalancing(res) {
+  res = res || { deficits:[], suggestions:[] };
+  const def = document.getElementById('deficit-list'), sug = document.getElementById('suggestion-list');
+  def.innerHTML = (res.deficits||[]).length ? (res.deficits||[]).map(d => `
+    <div style="padding:10px;background:var(--bg-card);border:1px solid ${d.severity==='CRITICAL'||d.severity==='HIGH'?'rgba(59,130,246,.3)':'rgba(245,158,11,.3)'};border-radius:var(--radius)">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div class="mono">${esc(d.from)} — ${esc(d.to)}</div>${riskChip(d.severity)}</div>
+      <div class="mono" style="color:var(--blue-bright);margin-top:4px">${d.deficit} deficit · planned ${d.planned} · available ${d.available}</div>
+      <div class="deficit-bar"><div class="deficit-fill ${d.deficit>=3?'crit':'warn'}" style="width:${Math.min(100,d.deficit*25)}%"></div></div>
+    </div>`).join('') : '<div class="empty-state">No deficits detected. ✓</div>';
+  sug.innerHTML = (res.suggestions||[]).length ? (res.suggestions||[]).map((s,i) => `
+    <div class="suggestion-card">
+      <div style="font-size:22px">⇄</div>
+      <div style="flex:1">
+        <div style="font-weight:500;font-size:13px">${esc(s.email)}</div>
+        <div class="mono" style="color:var(--text-secondary);margin-top:2px">${esc(s.fromTime)} → ${esc(s.toTime)} · ${esc(s.breakLabel)}</div>
+        <div class="suggestion-impact">✓ ${esc(s.impact)}</div>
+      </div>
+      <button class="btn btn-primary btn-xs" id="sug-btn-${i}" onclick="applySuggestion(${i})">Apply</button>
+    </div>`).join('') : '<div class="empty-state">No movement suggestions.</div>';
+}
+
+async function applySuggestion(i) {
+  const btn = document.getElementById('sug-btn-' + i);
+  if (btn) { btn.textContent = 'Applying…'; btn.disabled = true; }
+  try { const r = await api('applySuggestion', GXApp.balancing.suggestions[i]); toast(r.message||'Applied','success'); loadBalancing(); loadLive(true); }
+  catch(e) { toast(e.message,'error'); if (btn) { btn.textContent = 'Apply'; btn.disabled = false; } }
+}
+
+/* ══════════════════════════════════════════
+   PERFORMANCE
+══════════════════════════════════════════ */
+function loadKpiConfig() {
+  try {
+    const s = localStorage.getItem('gx-kpi-config');
+    GXApp.kpiConfig = s ? JSON.parse(s) : JSON.parse(JSON.stringify(DEFAULT_KPIS));
+  } catch(e) { GXApp.kpiConfig = JSON.parse(JSON.stringify(DEFAULT_KPIS)); }
+}
+
+async function loadPerformance() {
+  const btn = document.getElementById('refresh-perf-btn');
+  if (btn) { btn.textContent = 'Loading…'; btn.classList.add('spin-loading'); btn.disabled = true; }
+  try {
+    const res = await api('performance', {});
+    GXApp.perfRows = res.rows || [];
+    renderPerfPyramid();
+    renderPerfTable();
+    toast('Performance refreshed', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+  finally { if (btn) { btn.textContent = '↻ Refresh'; btn.classList.remove('spin-loading'); btn.disabled = false; } }
+}
+
+function renderPerfPyramid() {
+  const container = document.getElementById('perf-kpi-pyramid'); if (!container) return;
+  const kpis = GXApp.kpiConfig || DEFAULT_KPIS;
+  // Filter rows to own agent's email
+  const myEmail = ((GXApp.context && GXApp.context.email) || '').toLowerCase();
+  const rows = (GXApp.perfRows || []).filter(r => String(r.email||'').toLowerCase() === myEmail);
+
+  // Split: first 2 in top row, next 3 in bottom row
+  const top = kpis.slice(0, 2);
+  const bot = kpis.slice(2, 5);
+
+  function makeCard(kpi) {
+    const vals = rows.slice(0, 8).map(r => parseFloat(r[kpi.key]) || 0);
+    const cur = vals[0] || 0, prev = vals[1] || 0, delta = cur - prev;
+    const better = kpi.higherBetter ? delta >= 0 : delta <= 0;
+    const onTarget = kpi.higherBetter ? cur >= kpi.target : cur <= kpi.target;
+    const sparkH = buildSparkline(vals.slice(0,6).reverse(), 24, kpi.higherBetter);
+    return `<div class="perf-card">
+      <div class="perf-card-inner">
+        <div class="perf-card-front">
+          <div class="perf-card-label">${esc(kpi.name)}</div>
+          <div class="perf-card-value" style="color:${onTarget?'var(--green)':'var(--blue-bright)'}">${cur}${kpi.unit}</div>
+          <div class="perf-card-vs" style="color:${better?'var(--green)':'var(--blue-bright)'}">
+            ${better?'▲':'▼'} ${Math.abs(delta).toFixed(1)}${kpi.unit} vs last week</div>
+          <div style="margin-top:8px">${sparkH}</div>
+        </div>
+        <div class="perf-card-back">
+          <div class="perf-card-label">${esc(kpi.name)}</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.6">${esc(kpi.desc)}</div>
+          <div class="mono" style="color:var(--text-secondary)">Target: ${kpi.target}${kpi.unit}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  container.innerHTML = `
+    <div class="perf-row">${top.map(makeCard).join('')}</div>
+    <div class="perf-row">${bot.map(makeCard).join('')}</div>`;
+}
+
+function buildSparkline(vals, h, higherBetter) {
+  if (!vals.length) return '';
+  const max = Math.max(...vals, 1), min = Math.min(...vals, 0), w = 180, range = max - min || 1;
+  const pts = vals.map((v,i) => `${(i/(vals.length-1||1))*w},${h-((v-min)/range)*h}`).join(' ');
+  return `<svg class="sparkline-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><polyline class="sparkline-path ${higherBetter?'green':''}" points="${pts}"/></svg>`;
+}
+
+function renderPerfTable() {
+  const kpis = GXApp.kpiConfig || DEFAULT_KPIS;
+  const myEmail = ((GXApp.context && GXApp.context.email) || '').toLowerCase();
+  const isAgent = !GXApp.context || GXApp.context.role === 'AGENT' || GXApp.context.role === 'TEAM_COORDINATOR';
+  const rows = isAgent
+    ? (GXApp.perfRows || []).filter(r => String(r.email||'').toLowerCase() === myEmail)
+    : (GXApp.perfRows || []);
+  const thead = document.getElementById('perf-thead'), tbody = document.getElementById('perf-tbody');
+  if (!thead || !tbody) return;
+  thead.querySelector('tr').innerHTML = '<th>Week</th><th>Agent</th><th>Shift</th>' + kpis.map(k => `<th>${esc(k.name)}</th>`).join('');
+  if (!rows.length) return empty(tbody, 3+kpis.length, 'No performance data for your email.');
+  tbody.innerHTML = rows.map(r => `<tr><td>${esc(r.week)}</td><td>${esc(r.name||r.email)}</td><td>${esc(r.shift)}</td>${kpis.map(k=>`<td class="mono">${esc(r[k.key])}</td>`).join('')}</tr>`).join('');
+}
+
+/* ══════════════════════════════════════════
+   BREAK CALENDAR
+══════════════════════════════════════════ */
+const PX_PER_MIN = 72/60, CAL_START_H = 5;
+
+async function loadBreakCalendar() {
+  try {
+    const date = val('bc-date') || todayYmd();
+    const res  = await api('breakCalendar', {date});
+    GXApp.breakCalendar = res;
+    renderBreakCalendar();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function renderBreakCalendar() {
+  if (!GXApp.breakCalendar) return;
+  renderCalTimeCol(); renderCalEvents(); renderCalPendingAgents(); updateCalNowLine();
+  setTimeout(() => scrollCalToNow(), 300);
+}
+
+function renderCalTimeCol() {
+  const col = document.getElementById('cal-time-col'); if (!col) return;
+  let html = '';
+  for (let i = 0; i <= 27; i++) {
+    const hour = (CAL_START_H + i) % 24;
+    const top  = i * 60 * PX_PER_MIN;
+    html += `<div class="cal-hour-label" style="top:${top}px">${pad(hour)}:00</div>`;
+  }
+  col.innerHTML = html;
+}
+
+function renderCalEvents() {
+  const evCol = document.getElementById('cal-events-col');
+  const inner = document.getElementById('calendar-inner');
+  if (!evCol || !inner || !GXApp.breakCalendar) return;
+  evCol.innerHTML = '';
+
+  const events = (GXApp.breakCalendar.events||[]).sort((a,b) => a.startMs - b.startMs);
+
+  // Group events by their offsetMins (same slot = same group, displayed as horizontal row)
+  const groupMap = {}; // key = offsetMins
+  events.forEach((ev,idx) => {
+    const key = ev.offsetMins || 0;
+    if (!groupMap[key]) groupMap[key] = [];
+    groupMap[key].push({ev, idx});
+  });
+
+  Object.entries(groupMap).forEach(([offsetMinsStr, items]) => {
+    const offsetMins = Number(offsetMinsStr);
+    const duration = items[0].ev.duration || 30;
+    const top    = offsetMins * PX_PER_MIN;
+    const height = Math.max(28, duration * PX_PER_MIN - 2);
+    const group  = document.createElement('div');
+    group.className = 'break-event-group';
+    group.style.cssText = `top:${top}px;height:${height}px;`;
+
+    items.forEach(({ev, idx}) => {
+      const div = document.createElement('div');
+      div.className = 'break-event';
+      div.style.cssText = `position:relative;flex:1;left:auto;right:auto;top:auto;height:100%;min-width:120px;`;
+      div.draggable = true;
+      div.dataset.idx = idx;
+      div.innerHTML = `<div class="break-event-name">${esc(ev.name)}</div><div class="break-event-meta">${esc(ev.label)} · ${esc(ev.time)}</div>`;
+
+      div.addEventListener('dragstart', e => {
+        GXApp.calDragData = { idx, ev, div };
+        div.classList.add('dragging');
+        const helper = document.getElementById('cal-drop-helper');
+        const snap   = document.getElementById('snap-indicator');
+        if (helper) helper.style.display = 'block';
+        if (snap)   snap.style.display   = 'block';
+      });
+      div.addEventListener('dragend', () => {
+        div.classList.remove('dragging');
+        const helper = document.getElementById('cal-drop-helper');
+        const snap   = document.getElementById('snap-indicator');
+        if (helper) helper.style.display = 'none';
+        if (snap)   snap.style.display   = 'none';
+        GXApp.calDragData = null;
+      });
+      group.appendChild(div);
+    });
+
+    evCol.appendChild(group);
+  });
+
+  // Draw hour lines
+  document.querySelectorAll('.cal-hour-line').forEach(el => el.remove());
+  for (let i = 0; i <= 27; i++) {
+    const line = document.createElement('div');
+    line.className = 'cal-hour-line';
+    line.style.top = (i * 60 * PX_PER_MIN) + 'px';
+    inner.appendChild(line);
+  }
+
+  // Dragover/drop on the events column
+  evCol.ondragover = e => {
+    e.preventDefault();
+    const rect   = evCol.getBoundingClientRect();
+    const y      = e.clientY - rect.top;
+    const snapM  = Math.round((y / PX_PER_MIN) / 5) * 5;
+    const offsetM = snapM + CAL_START_H * 60;
+    const h = Math.floor(offsetM / 60) % 24, m = offsetM % 60;
+    const helper = document.getElementById('cal-drop-helper');
+    const lbl    = document.getElementById('cal-drop-label');
+    const snap   = document.getElementById('snap-indicator');
+    if (helper) { helper.style.top = (snapM * PX_PER_MIN) + 'px'; helper.style.display = 'block'; }
+    if (lbl)    lbl.textContent = `${pad(h)}:${pad(m)}`;
+    if (snap)   snap.style.top = (snapM * PX_PER_MIN) + 'px';
+  };
+
+  evCol.ondrop = async e => {
+    e.preventDefault();
+    const helper = document.getElementById('cal-drop-helper');
+    const snap   = document.getElementById('snap-indicator');
+    if (helper) helper.style.display = 'none';
+    if (snap)   snap.style.display   = 'none';
+    if (!GXApp.calDragData) return;
+    const { ev, div: dragDiv } = GXApp.calDragData;
+    const rect   = evCol.getBoundingClientRect();
+    const y      = e.clientY - rect.top;
+    const snapM  = Math.round((y / PX_PER_MIN) / 5) * 5;
+    const offsetM = snapM + CAL_START_H * 60;
+    const h = Math.floor(offsetM / 60) % 24, m = offsetM % 60;
+    const toTime  = `${pad(h)}:${pad(m)}`;
+
+    // Optimistic UI: move group immediately
+    const parentGroup = dragDiv ? dragDiv.closest('.break-event-group') : null;
+    if (parentGroup) parentGroup.style.top = (snapM * PX_PER_MIN) + 'px';
+    if (ev) { ev.offsetMins = snapM; ev.time = toTime; }
+
+    toast('Break moved to ' + toTime, 'success');
+    GXApp.calDragData = null;
+
+    try {
+      await api('moveBreak', Object.assign({}, ev, { toTime, date: val('bc-date') || todayYmd() }));
+      loadBreakCalendar();
+      loadBalancing();
+    } catch(err) {
+      toast('Sync error: ' + err.message, 'error');
+      loadBreakCalendar();
+    }
+  };
+}
+function renderCalPendingAgents() {
+  const tbody = document.getElementById('break-unscheduled'); if (!tbody || !GXApp.breakCalendar) return;
+  const rows = GXApp.breakCalendar.unscheduled || [];
+  if (!rows.length) return empty(tbody, 3, 'All agents have submitted breaks ✓');
+  tbody.innerHTML = rows.map(a => `<tr>
+    <td>${esc(a.name)}<div class="mono" style="color:var(--text-muted);font-size:10px">${esc(a.email)}</div></td>
+    <td class="mono">${esc(a.shift)}</td>
+    <td><div class="action-menu">
+      <button class="btn btn-secondary btn-xs" onclick="toggleAction(this)">Mark Break ▾</button>
+      <div class="action-dropdown">
+        <div class="action-item" onclick="goManagerBreakSubmitWithPlan('${js(a.id)}','T1')">T1 Break</div>
+        <div class="action-item" onclick="goManagerBreakSubmitWithPlan('${js(a.id)}','T2')">T2 Break</div>
+      </div></div></td>
+  </tr>`).join('');
+}
+
+function goManagerBreakSubmitWithPlan(agentId, plan) {
+  switchView('manager');
+  const ag = document.getElementById('mgr-break-agent'), pl = document.getElementById('mgr-break-plan');
+  if (ag) ag.value = agentId; if (pl) { pl.value = plan; renderManagerBreakSlots(); }
+}
+
+function updateCalNowLine() {
+  const line = document.getElementById('cal-now-line'); if (!line) return;
+  const now  = new Date();
+  const mins = (now.getHours()*60 + now.getMinutes()) - CAL_START_H*60;
+  if (mins < 0 || mins > 27*60) { line.style.display='none'; return; }
+  line.style.display = 'block';
+  line.style.top = (mins * PX_PER_MIN) + 'px';
+}
+
+function scrollCalToNow() {
+  const wrap = document.getElementById('calendar-wrap'); if (!wrap) return;
+  const now  = new Date();
+  const mins = (now.getHours()*60 + now.getMinutes()) - CAL_START_H*60;
+  if (mins > 0) wrap.scrollTop = Math.max(0, mins * PX_PER_MIN - 150);
+}
+
+/* ══════════════════════════════════════════
+   MANAGER TOOLS
+══════════════════════════════════════════ */
+function renderManagerBreakSlots() {
+  const plan = val('mgr-break-plan') || 'T1';
+  const b3wrap = document.getElementById('mgr-b3-wrap');
+  if (b3wrap) b3wrap.style.display = plan === 'T2' ? 'block' : 'none';
+}
+
+async function managerSubmitBreak() {
+  const id = val('mgr-break-agent'), agent = GXApp.agents.find(a => a.id === id);
+  if (!agent) return toast('Agent not found', 'error');
+  const plan = val('mgr-break-plan') || 'T1', b1 = val('mgr-b1'), b2 = val('mgr-b2'), b3 = val('mgr-b3');
+  if (!b1 || !b2) return toast('Break 1 and 2 required', 'error');
+  if (plan === 'T2' && !b3) return toast('Break 3 required for T2', 'error');
+  const vi = t => (parseInt(t.split(':')[1]) % 5) === 0;
+  if (!vi(b1) || !vi(b2)) return toast('Times must be on 5-minute intervals', 'error');
+  const btn = document.getElementById('mgr-submit-break-btn');
+  if (btn) { btn.textContent = 'Submitting…'; btn.classList.add('spin-loading'); btn.disabled = true; }
+  try {
+    const r = await api('submitBreak', {
+      agentId:id, name:agent.name, email:agent.email,
+      shift: agent.shiftStart+' - '+agent.shiftEnd,
+      shiftDate:todayYmd(), plan, b1, b2, b3,
+      submittedBy: (GXApp.context && GXApp.context.email) || 'Manager', allowDuplicate:true
+    });
+    toast(r.message||'Breaks submitted','success'); loadLive(true); loadBreakCalendar();
+  } catch(e) { toast(e.message,'error'); }
+  finally { if (btn) { btn.textContent = 'Submit Breaks'; btn.classList.remove('spin-loading'); btn.disabled = false; } }
+}
+
+/* ══════════════════════════════════════════
+   ADMIN
+══════════════════════════════════════════ */
+async function adminInitialize() { const btn=document.getElementById('init-btn'); if(btn){btn.textContent='Initializing…';btn.classList.add('spin-loading');btn.disabled=true;} try{const r=await api('adminInitialize',{});toast(r.message,'success');}catch(e){toast(e.message,'error');}finally{if(btn){btn.textContent='Initialize Core Sheets';btn.classList.remove('spin-loading');btn.disabled=false;}} }
+async function setupMockData() { const btn=document.getElementById('mock-btn'); if(btn){btn.textContent='Creating…';btn.classList.add('spin-loading');btn.disabled=true;} try{const r=await api('setupMockData',{});toast(r.message||'Done','success');refreshAll();}catch(e){toast(e.message,'error');}finally{if(btn){btn.textContent='Create Mock Test Data';btn.classList.remove('spin-loading');btn.disabled=false;}} }
+async function setupTriggers() { const btn=document.getElementById('trig-btn'); if(btn){btn.textContent='Setting up…';btn.classList.add('spin-loading');btn.disabled=true;} try{const r=await api('setupTriggers',{});toast(r.message,'success');}catch(e){toast(e.message,'error');}finally{if(btn){btn.textContent='Setup 5-Min Triggers';btn.classList.remove('spin-loading');btn.disabled=false;}} }
+async function overrideState() { try{const r=await api('overrideState',{agentId:val('override-agent'),state:val('override-state')});toast(r.message,'success');}catch(e){toast(e.message,'error');} }
+async function saveAccess() { try{const p={email:val('acl-email'),role:val('acl-role'),name:val('acl-name'),team:val('acl-team')};if(!p.email)return toast('Email required','error');const r=await api('saveAccess',p);toast(r.message||'Saved','success');loadAccessControl();}catch(e){toast(e.message,'error');} }
+async function loadAccessControl() { try{const res=await api('accessControl',{});const tbody=document.getElementById('access-tbody');if(!tbody)return;const rows=res.rows||[];if(!rows.length)return empty(tbody,5,'No access rows.');tbody.innerHTML=rows.map(r=>`<tr><td class="mono">${esc(r.email)}</td><td>${esc(r.role)}</td><td>${esc(r.name)}</td><td><span class="tag">${esc(r.team||'All')}</span></td><td><button class="btn btn-danger btn-xs" onclick="revokeAccess('${js(r.email)}')">Revoke</button></td></tr>`).join('');}catch(e){toast(e.message,'error');} }
+async function revokeAccess(email) { try{const r=await api('revokeAccess',{email});toast(r.message||'Revoked','success');loadAccessControl();}catch(e){toast(e.message,'error');} }
+async function runReorganiser() { const btn=document.getElementById('reorg-btn'),status=document.getElementById('reorg-status'); if(btn){btn.textContent='Running…';btn.classList.add('spin-loading');btn.disabled=true;} if(status){status.style.display='block';status.textContent='Processing agents…';} try{const r=await api('runReorganiser',{});if(status)status.textContent=r.message||'Done';toast(r.message||'Done','success');}catch(e){toast(e.message,'error');if(status)status.textContent='Error: '+e.message;}finally{if(btn){btn.textContent='Start Reorganiser';btn.classList.remove('spin-loading');btn.disabled=false;}} }
+
+/* ══════════════════════════════════════════
+   LOGS
+══════════════════════════════════════════ */
+async function loadLogs() {
+  try {
+    const res = await api('logs', {limit:200});
+    const tbody = document.getElementById('logs-tbody');
+    const rows = res.rows || [];
+    if (!rows.length) return empty(tbody, 5, 'No logs found.');
+    tbody.innerHTML = rows.map(r => `<tr>
+      <td class="mono">${esc(r.timestamp)}</td>
+      <td class="mono" style="color:var(--blue-bright)">${esc(r.event)}</td>
+      <td class="mono">${esc(r.agentId)}</td>
+      <td>${esc(r.details)}</td>
+      <td><span class="tag">${esc(r.by)}</span></td>
+    </tr>`).join('');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+/* ══════════════════════════════════════════
+   ACTION DROPDOWN
+══════════════════════════════════════════ */
+function toggleAction(btn) {
+  const dd = btn.nextElementSibling, open = dd.classList.contains('open');
+  document.querySelectorAll('.action-dropdown.open').forEach(d => d.classList.remove('open'));
+  if (!open) dd.classList.add('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.action-menu')) document.querySelectorAll('.action-dropdown.open').forEach(d => d.classList.remove('open'));
+});
+
+/* ══════════════════════════════════════════
+   CHIPS
+══════════════════════════════════════════ */
+function statusChip(status) {
+  const s = String(status||'').toUpperCase().trim();
+  if (s==='ONLINE')  return chip(s,'online');
+  if (s==='ACTIVE')  return chip(s,'active');
+  if (s==='IDLE')    return chip(s,'idle');
+  if (s==='ABSENT')  return chip(s,'absent');
+  if (s==='BREAK')   return chip(s,'break');
+  if (s.includes('WRAP')||s.includes('SHIFT WRAP')) return chip(s,'shiftwrap');
+  if (s.includes('LATE'))  return chip(s,'late');
+  if (s.includes('EARLY')) return chip(s,'wrap');
+  if (s.includes('OVER') || s==='OVERTIME') return chip(s,'overtime');
+  return chip(s||'OFFLINE','offline');
+}
+function chip(label, cls) { return `<span class="chip ${cls}"><span class="chip-dot"></span>${esc(String(label).replace(/_/g,' '))}</span>`; }
+function riskChip(r) { return `<span class="chip risk-${String(r||'LOW').toLowerCase()}"><span class="chip-dot"></span>${esc(r||'LOW')}</span>`; }
+
+/* ══════════════════════════════════════════
+   MODAL
+══════════════════════════════════════════ */
+function openModal(title, body, cb) {
+  setText('modal-title',title);
+  document.getElementById('modal-body').innerHTML = `<div style="color:var(--text-secondary);font-size:13px;line-height:1.6">${body}</div>`;
+  GXApp.modalCallback = cb;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); GXApp.modalCallback = null; }
+function confirmModal() { if (GXApp.modalCallback) GXApp.modalCallback(); closeModal(); }
+document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+function toast(msg, type) {
+  type = type || 'success';
+  const icons = {success:'✓',error:'✗',warn:'⚠'};
+  const colors = {success:'var(--green)',error:'var(--blue-bright)',warn:'var(--amber)'};
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = `<span style="color:${colors[type]};font-size:16px">${icons[type]||'ℹ'}</span><span>${esc(String(msg))}</span>`;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(20px)'; t.style.transition='.3s'; setTimeout(()=>t.remove(),300); }, 3500);
+}
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+function setText(id,v) { const el=document.getElementById(id); if(el) el.textContent=String(v==null?'':v); }
+function val(id) { const el=document.getElementById(id); return el?el.value:''; }
+function todayYmd() { return new Date().toISOString().slice(0,10); }
+
+function clipCopy(text, label) {
+  navigator.clipboard.writeText(text).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+  });
+  toast((label||'Value') + ' copied', 'success');
+}
+
+function copyBreakChip(el) {
+  const id  = el.getAttribute('data-cid')  || '';
+  const nm  = el.getAttribute('data-cnm')  || '';
+  const brk = el.getAttribute('data-cbrk') || '';
+  const msg = id + '\n' + nm + '\n' + brk;
+  navigator.clipboard.writeText(msg).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = msg; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+  });
+  toast('Break message copied', 'success');
+}
+
+function copyNearestInterval() {
+  // Only for non-agent roles
+  if (GXApp.context && GXApp.context.role === 'AGENT') return;
+  const now = new Date();
+  const mins = now.getHours()*60 + now.getMinutes();
+  const snap = Math.round(mins/5)*5;
+  const h = Math.floor(snap/60)%24, m = snap%60;
+  const timeStr = pad(h) + ':' + pad(m);
+  clipCopy(timeStr, 'Interval');
+  const el = document.getElementById('clock');
+  if (el) {
+    el.classList.add('copied');
+    setTimeout(() => el.classList.remove('copied'), 1400);
+  }
+}
+function pad(n) { return String(n).padStart(2,'0'); }
+function empty(tbody, colspan, msg) { if(tbody) tbody.innerHTML=`<tr><td colspan="${colspan}" class="empty-state">${esc(msg)}</td></tr>`; }
+function esc(v) { return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escAttr(v) { return esc(v); }
+function js(v) { return String(v==null?'':v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' '); }
+</script>
+</body>
+</html>
