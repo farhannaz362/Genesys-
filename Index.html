@@ -203,9 +203,9 @@ body::after{
 }
 .si-hint span{color:var(--text-secondary)}
 .si-error{
-  background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);
+  background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);
   border-radius:var(--radius-sm);padding:8px 12px;
-  font-family:var(--font-mono);font-size:11px;color:var(--blue-bright);
+  font-family:var(--font-mono);font-size:11px;color:var(--red);
   margin-bottom:12px;display:none;
 }
 .si-error.show{display:block}
@@ -306,7 +306,7 @@ body::after{
 .nav-icon{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;opacity:.8}
 .nav-label{transition:opacity var(--transition-sidebar),max-width var(--transition-sidebar);max-width:200px;white-space:nowrap;overflow:hidden}
 #sidebar.collapsed .nav-label{opacity:0;max-width:0}
-.nav-badge{margin-left:auto;background:var(--blue);color:#fff;font-family:var(--font-mono);font-size:9px;font-weight:500;padding:1px 5px;border-radius:10px;transition:opacity var(--transition-sidebar)}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-family:var(--font-mono);font-size:9px;font-weight:500;padding:1px 5px;border-radius:10px;transition:opacity var(--transition-sidebar)}
 .nav-badge.warn{background:rgba(245,158,11,.2);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
 #sidebar.collapsed .nav-badge{opacity:0}
 
@@ -380,7 +380,7 @@ body::after{
 .stat-card.active-filter{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--blue))}
 .stat-card.green::before{--accent:var(--green)}.stat-card.cyan::before{--accent:var(--cyan)}
-.stat-card.red::before{--accent:var(--blue)}.stat-card.purple::before{--accent:var(--purple)}
+.stat-card.red::before{--accent:var(--red)}.stat-card.purple::before{--accent:var(--purple)}
 .stat-card.orange::before{--accent:var(--orange)}
 .stat-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-secondary);margin-bottom:8px}
 .stat-value{font-family:var(--font-display);font-weight:700;font-size:26px;line-height:1}
@@ -399,7 +399,7 @@ body::after{
 .btn-primary:hover{box-shadow:0 4px 16px rgba(59,130,246,.4)}
 .btn-secondary{background:var(--bg-elevated);color:var(--text-primary);border-color:var(--border)}.btn-secondary:hover{background:var(--bg-hover);border-color:var(--border-glow)}
 .btn-ghost{background:transparent;color:var(--text-secondary);border-color:transparent}.btn-ghost:hover{background:var(--bg-elevated);color:var(--text-primary)}
-.btn-danger{background:rgba(59,130,246,.15);color:var(--blue-bright);border-color:rgba(59,130,246,.3)}
+.btn-danger{background:rgba(239,68,68,.15);color:var(--red);border-color:rgba(239,68,68,.3)}
 .btn-success{background:rgba(16,185,129,.15);color:var(--green);border-color:rgba(16,185,129,.3)}
 .btn-sm{padding:5px 12px;font-size:11px}.btn-xs{padding:3px 8px;font-size:10px}
 .btn.spin-loading::after{content:'';position:absolute;right:8px;top:50%;margin-top:-5px;width:10px;height:10px;border:2px solid transparent;border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite}
@@ -422,14 +422,14 @@ body::after{
 .chip.active{background:rgba(59,130,246,.1);color:var(--blue-bright);border-color:rgba(59,130,246,.25)}.chip.active .chip-dot{background:var(--blue-bright)}
 .chip.idle{background:rgba(245,158,11,.12);color:var(--amber);border-color:rgba(245,158,11,.3)}.chip.idle .chip-dot{background:var(--amber)}
 .chip.offline{background:rgba(100,116,139,.15);color:var(--text-secondary);border-color:var(--border)}.chip.offline .chip-dot{background:var(--text-secondary)}
-.chip.absent{background:rgba(59,130,246,.15);color:var(--blue-bright);border-color:rgba(59,130,246,.3)}.chip.absent .chip-dot{background:var(--blue-bright)}
+.chip.absent{background:rgba(239,68,68,.15);color:var(--red);border-color:rgba(239,68,68,.3)}.chip.absent .chip-dot{background:var(--red)}
 .chip.break{background:rgba(167,139,250,.15);color:var(--purple);border-color:rgba(167,139,250,.3)}.chip.break .chip-dot{background:var(--purple)}
 .chip.late{background:rgba(249,115,22,.15);color:var(--orange);border-color:rgba(249,115,22,.3)}.chip.late .chip-dot{background:var(--orange)}
 .chip.wrap,.chip.shiftwrap{background:rgba(34,211,238,.1);color:var(--cyan);border-color:rgba(34,211,238,.2)}.chip.wrap .chip-dot,.chip.shiftwrap .chip-dot{background:var(--cyan)}
 .chip.overtime{background:rgba(34,211,238,.15);color:var(--cyan);border-color:rgba(34,211,238,.25)}.chip.overtime .chip-dot{background:var(--cyan)}
 .chip.risk-low{background:rgba(16,185,129,.1);color:var(--green);border-color:rgba(16,185,129,.2)}
 .chip.risk-medium{background:rgba(245,158,11,.1);color:var(--amber);border-color:rgba(245,158,11,.3)}
-.chip.risk-high,.chip.risk-critical{background:rgba(59,130,246,.12);color:var(--blue-bright);border-color:rgba(59,130,246,.3)}
+.chip.risk-high,.chip.risk-critical{background:rgba(239,68,68,.12);color:var(--red);border-color:rgba(239,68,68,.3)}
 
 /* ── FORMS ── */
 .form-group{display:flex;flex-direction:column;gap:6px}
@@ -451,11 +451,11 @@ body::after{
 .action-dropdown.open{display:block}
 .action-item{padding:8px 12px;font-size:12px;cursor:pointer;color:var(--text-secondary);display:flex;align-items:center;gap:8px}
 .action-item:hover{background:var(--bg-hover);color:var(--text-primary)}
-.action-item.danger{color:var(--blue-bright)}
+.action-item.danger{color:var(--red)}
 
 /* ── BANNERS ── */
-.access-banner{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.3);border-radius:var(--radius);padding:12px 16px;display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text-secondary);line-height:1.6}
-.access-banner-icon{font-size:16px;color:var(--blue-bright);flex-shrink:0;margin-top:1px}
+.access-banner{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:var(--radius);padding:12px 16px;display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text-secondary);line-height:1.6}
+.access-banner-icon{font-size:16px;color:var(--red);flex-shrink:0;margin-top:1px}
 .info-banner{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:12px}
 
 /* ── AGENT STATUS RING ── */
@@ -467,7 +467,7 @@ body::after{
   background:radial-gradient(circle,rgba(16,185,129,.05),transparent 70%);
 }
 .agent-status-ring.status-offline{border-color:var(--text-muted);box-shadow:none;background:none}
-.agent-status-ring.status-absent{border-color:var(--blue);box-shadow:0 0 20px rgba(59,130,246,.3);background:radial-gradient(circle,rgba(59,130,246,.05),transparent 70%)}
+.agent-status-ring.status-absent{border-color:var(--red);box-shadow:0 0 20px rgba(239,68,68,.3);background:radial-gradient(circle,rgba(239,68,68,.05),transparent 70%)}
 .agent-status-ring.status-break{border-color:var(--purple);box-shadow:0 0 20px rgba(167,139,250,.3);background:radial-gradient(circle,rgba(167,139,250,.05),transparent 70%)}
 .agent-status-ring.status-wrap{border-color:var(--cyan);box-shadow:0 0 20px rgba(34,211,238,.3);background:radial-gradient(circle,rgba(34,211,238,.05),transparent 70%)}
 .agent-status-ring.status-online{border-color:var(--green);box-shadow:0 0 20px rgba(16,185,129,.3)}
@@ -484,7 +484,7 @@ body::after{
 .countdown-value.green{color:var(--green)}
 .countdown-value.purple{color:var(--purple)}
 .countdown-value.amber{color:var(--amber)}
-.countdown-value.red{color:var(--blue-bright)}
+.countdown-value.red{color:var(--red)}
 
 /* ── BREAK COUNTDOWN CARDS ── */
 .break-countdown-card{
@@ -542,7 +542,7 @@ body::after{
 .hc-table td.row-head{background:var(--bg-card);color:var(--text-secondary);font-size:10px;position:sticky;left:0;z-index:1;text-align:left;padding:5px 10px}
 .hc-cell-high{background:rgba(16,185,129,.18)!important;color:var(--green);font-weight:700}
 .hc-cell-mid{background:rgba(245,158,11,.12)!important;color:var(--amber)}
-.hc-cell-low{background:rgba(59,130,246,.12)!important;color:var(--blue-bright)}
+.hc-cell-low{background:rgba(239,68,68,.12)!important;color:var(--red)}
 .hc-cell-zero{background:rgba(100,116,139,.1)!important;color:var(--text-muted)}
 
 /* ── WEEK TABS ── */
@@ -573,7 +573,7 @@ body::after{
 /* ── DEFICIT BAR ── */
 .deficit-bar{height:5px;background:var(--bg-elevated);border-radius:3px;overflow:hidden;margin-top:4px}
 .deficit-fill{height:100%;border-radius:3px}
-.deficit-fill.ok{background:var(--green)}.deficit-fill.warn{background:var(--amber)}.deficit-fill.crit{background:var(--blue)}
+.deficit-fill.ok{background:var(--green)}.deficit-fill.warn{background:var(--amber)}.deficit-fill.crit{background:var(--red)}
 
 /* ── SUGGESTION CARD ── */
 .suggestion-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;align-items:center;gap:12px;transition:border-color .15s}
@@ -2172,9 +2172,9 @@ function renderBalancing(res) {
   res = res || { deficits:[], suggestions:[] };
   const def = document.getElementById('deficit-list'), sug = document.getElementById('suggestion-list');
   def.innerHTML = (res.deficits||[]).length ? (res.deficits||[]).map(d => `
-    <div style="padding:10px;background:var(--bg-card);border:1px solid ${d.severity==='CRITICAL'||d.severity==='HIGH'?'rgba(59,130,246,.3)':'rgba(245,158,11,.3)'};border-radius:var(--radius)">
+    <div style="padding:10px;background:var(--bg-card);border:1px solid ${d.severity==='CRITICAL'||d.severity==='HIGH'?'rgba(239,68,68,.3)':'rgba(245,158,11,.3)'};border-radius:var(--radius)">
       <div style="display:flex;justify-content:space-between;align-items:center"><div class="mono">${esc(d.from)} — ${esc(d.to)}</div>${riskChip(d.severity)}</div>
-      <div class="mono" style="color:var(--blue-bright);margin-top:4px">${d.deficit} deficit · planned ${d.planned} · available ${d.available}</div>
+      <div class="mono" style="color:var(--red);margin-top:4px">${d.deficit} deficit · planned ${d.planned} · available ${d.available}</div>
       <div class="deficit-bar"><div class="deficit-fill ${d.deficit>=3?'crit':'warn'}" style="width:${Math.min(100,d.deficit*25)}%"></div></div>
     </div>`).join('') : '<div class="empty-state">No deficits detected. ✓</div>';
   sug.innerHTML = (res.suggestions||[]).length ? (res.suggestions||[]).map((s,i) => `
@@ -2241,7 +2241,7 @@ function renderPerfPyramid() {
         <div class="perf-card-front">
           <div class="perf-card-label">${esc(kpi.name)}</div>
           <div class="perf-card-value" style="color:${onTarget?'var(--green)':'var(--blue-bright)'}">${cur}${kpi.unit}</div>
-          <div class="perf-card-vs" style="color:${better?'var(--green)':'var(--blue-bright)'}">
+          <div class="perf-card-vs" style="color:${better?'var(--green)':'var(--red)'}">
             ${better?'▲':'▼'} ${Math.abs(delta).toFixed(1)}${kpi.unit} vs last week</div>
           <div style="margin-top:8px">${sparkH}</div>
         </div>
