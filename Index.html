@@ -103,33 +103,33 @@ body::after{
 /* shared base for all animated glyphs */
 .gl{
   fill:transparent;
-  stroke-dasharray:1200;
-  stroke-dashoffset:1200;
+  stroke-dasharray:5000;
+  stroke-dashoffset:5000;
   stroke-linejoin:round;
   stroke-linecap:round;
   paint-order:stroke fill;
 }
 .gl-letter{
   stroke:#e8edf8;
-  stroke-width:1.6px;
+  stroke-width:3px;
   animation:
-    glDraw 3s ease var(--gd,0s) forwards,
-    glFill 1.5s calc(var(--gd,0s) + 2.2s) ease forwards;
+    glDraw 3.5s ease var(--gd,0s) forwards,
+    glFill 1.8s calc(var(--gd,0s) + 3.2s) ease forwards;
 }
 .gl-plus{
   stroke:url(#siGrad);
-  stroke-width:2.4px;
+  stroke-width:5px;
   animation:
-    glDraw 3s ease var(--gd,0s) forwards,
-    glFillGrad 1.5s calc(var(--gd,0s) + 2.2s) ease forwards,
-    glPulse 2.8s calc(var(--gd,0s) + 3.8s) ease-in-out infinite;
+    glDraw 3.5s ease var(--gd,0s) forwards,
+    glFillGrad 1.8s calc(var(--gd,0s) + 3.2s) ease forwards,
+    glPulse 2.8s calc(var(--gd,0s) + 5s) ease-in-out infinite;
 }
 @keyframes glDraw{100%{stroke-dashoffset:0}}
 @keyframes glFill{100%{fill:#e8edf8;stroke-width:0}}
 @keyframes glFillGrad{100%{fill:url(#siGrad);stroke-width:0}}
 @keyframes glPulse{
-  0%,100%{filter:drop-shadow(0 0 5px rgba(96,165,250,.7))}
-  50%{filter:drop-shadow(0 0 22px rgba(96,165,250,1)) drop-shadow(0 0 44px rgba(59,130,246,.5))}
+  0%,100%{filter:drop-shadow(0 0 8px rgba(96,165,250,.8)) drop-shadow(0 0 16px rgba(59,130,246,.4))}
+  50%{filter:drop-shadow(0 0 28px rgba(96,165,250,1)) drop-shadow(0 0 56px rgba(59,130,246,.7)) drop-shadow(0 0 80px rgba(14,165,233,.4))}
 }
 
 #signin-sub{
@@ -630,37 +630,35 @@ body::after{
 <div id="signin-screen">
   <div id="signin-logo-wrap">
     <!-- Genesys+ logo — CSS letter-by-letter stroke draw animation -->
-    <svg id="signin-svg-stage" viewBox="0 0 800 200" width="min(700px,90vw)" height="min(120px,18vw)" style="display:block;margin:0 auto;overflow:visible">
+    <svg id="signin-svg-stage" viewBox="0 0 880 160" width="min(760px,92vw)" height="min(130px,20vw)" style="display:block;margin:0 auto;overflow:visible">
       <defs>
         <linearGradient id="siGrad" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%"   stop-color="#4173ff"/>
           <stop offset="100%" stop-color="#00e5ff"/>
         </linearGradient>
       </defs>
-      <!-- Genesys letters + smaller raised + -->
-      <text dominant-baseline="middle" font-family="Lexend, sans-serif" font-weight="600" letter-spacing="-1">
-        <!-- Each letter at y=100 (mid), + is raised to y=76 and font-size 72 vs 110 -->
-        <tspan class="gl gl-letter" font-size="110" x="44"  y="110" style="--gd:0.0s">G</tspan>
-        <tspan class="gl gl-letter" font-size="110" dx="-2" y="110" style="--gd:0.3s">e</tspan>
-        <tspan class="gl gl-letter" font-size="110" dx="-2" y="110" style="--gd:0.6s">n</tspan>
-        <tspan class="gl gl-letter" font-size="110" dx="-2" y="110" style="--gd:0.9s">e</tspan>
-        <tspan class="gl gl-letter" font-size="110" dx="-2" y="110" style="--gd:1.2s">s</tspan>
-        <tspan class="gl gl-letter" font-size="110" dx="-2" y="110" style="--gd:1.5s">y</tspan>
-        <tspan class="gl gl-letter" font-size="110" dx="-2" y="110" style="--gd:1.8s">s</tspan>
-        <tspan class="gl gl-plus"   font-size="72"  dx="6"  y="82"  style="--gd:2.1s">+</tspan>
+      <text dominant-baseline="middle" font-family="Syne, sans-serif" font-weight="800" letter-spacing="2">
+        <tspan class="gl gl-letter" font-size="120" x="18"  y="122" style="--gd:0.0s">G</tspan>
+        <tspan class="gl gl-letter" font-size="120" dx="-3" y="122" style="--gd:0.3s">E</tspan>
+        <tspan class="gl gl-letter" font-size="120" dx="-3" y="122" style="--gd:0.6s">N</tspan>
+        <tspan class="gl gl-letter" font-size="120" dx="-3" y="122" style="--gd:0.9s">E</tspan>
+        <tspan class="gl gl-letter" font-size="120" dx="-3" y="122" style="--gd:1.2s">S</tspan>
+        <tspan class="gl gl-letter" font-size="120" dx="-3" y="122" style="--gd:1.5s">Y</tspan>
+        <tspan class="gl gl-letter" font-size="120" dx="-3" y="122" style="--gd:1.8s">S</tspan>
+        <tspan class="gl gl-plus"   font-size="82"  dx="10" y="84"  style="--gd:2.1s">+</tspan>
       </text>
     </svg>
-    <div id="signin-sub">Workforce Management Platform</div>
+    <div id="signin-sub">WORKFORCE MANAGEMENT</div>
   </div>
 
   <div id="signin-card">
     <div class="si-header">
-      <div class="si-title">Authenticating</div>
+      <div class="si-title">Sign In</div>
       <div class="si-role-badge" id="si-role-badge">AGENT</div>
     </div>
     <div class="si-error" id="si-error"></div>
     <div class="si-label">Work Email</div>
-    <input class="si-input" type="email" id="si-email" placeholder="Verifying your identity…" autocomplete="email" onkeydown="if(event.key==='Enter')doSignIn()">
+    <input class="si-input" type="email" id="si-email" placeholder="you@company.com" autocomplete="email" onkeydown="if(event.key==='Enter')doSignIn()">
     <button class="si-btn" id="si-btn" onclick="doSignIn()">
       <span id="si-btn-text">Continue →</span>
     </button>
@@ -1093,7 +1091,7 @@ window.GENESYS_X_MODE = '<?= mode ?>';
 // We trigger the logo shrink + card reveal after the last letter fills in.
 (function initLogoReveal() {
   // Last tspan has --gd:2.1s, draw=3s, fill starts at 2.1+2.2=4.3s, fill=1.5s → done ~5.8s
-  const REVEAL_DELAY = 5800;
+  const REVEAL_DELAY = 6500;
   setTimeout(() => {
     document.getElementById('signin-logo-wrap').classList.add('shifted');
     document.getElementById('signin-sub').classList.add('show');
@@ -1190,10 +1188,13 @@ function finishSignIn() {
     return;
   }
 
-  // Validate email matches context
+  // Email validation — only block if server definitively returns a non-empty email
+  // that doesn't match. When script runs as deployer, server email may differ from
+  // the typed email, so we skip the check in that case to avoid false rejections.
   if (_bootstrapData && _bootstrapData.context && _bootstrapData.context.email) {
     const serverEmail = String(_bootstrapData.context.email).trim().toLowerCase();
-    if (serverEmail && serverEmail !== _siEmail) {
+    const isDeployerMismatch = serverEmail && _siEmail && serverEmail !== _siEmail;
+    if (isDeployerMismatch && !_bootstrapData.context.isDeployer) {
       errEl.textContent = 'Email does not match the authenticated Google account. Please use your work email.';
       errEl.classList.add('show');
       const btn = document.getElementById('si-btn');
@@ -1282,7 +1283,57 @@ function applyBootstrap(res) {
     if (b) b.classList.remove('hidden');
     if (m) m.textContent = res.context.accessMessage;
   }
-  toast('Genesys + online', 'success');
+
+  // First-run detection: no agents and no live data means sheets are not set up yet
+  if (!GXApp.agents.length && !GXApp.live.length) {
+    showSetupWizard();
+  } else {
+    toast('Genesys + online', 'success');
+  }
+}
+
+function showSetupWizard() {
+  const existing = document.getElementById('setup-wizard-overlay');
+  if (existing) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'setup-wizard-overlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9999;background:rgba(10,14,26,.92);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-ui);
+  `;
+  overlay.innerHTML = `
+    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:16px;
+                padding:40px 36px;max-width:480px;width:90%;text-align:center;">
+      <div style="font-size:36px;margin-bottom:16px">📋</div>
+      <div style="font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:10px">
+        No Roster Data Found
+      </div>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:28px">
+        Genesys+ could not find a staffing matrix for this week.<br>
+        Open your Google Sheet and run <strong style="color:var(--blue-bright)">Genesys+ → Setup Mock Test Data</strong>
+        from the menu, then reload this page.
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);background:var(--surface-3);
+                  border-radius:8px;padding:12px 16px;margin-bottom:24px;text-align:left;
+                  font-family:var(--font-mono);line-height:1.8">
+        Expected sheet name:<br>
+        <span style="color:var(--blue-bright)" id="wizard-sheet-name">Staffing Matrix …</span>
+      </div>
+      <button onclick="document.getElementById('setup-wizard-overlay').remove();toast('Reload after creating mock data','info')"
+              style="background:linear-gradient(135deg,var(--grad-a),var(--grad-b));
+                     border:none;border-radius:8px;padding:11px 28px;
+                     color:#fff;font-size:14px;font-weight:600;cursor:pointer;">
+        Got it
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  // Ask server for the expected sheet name
+  google.script.run.withSuccessHandler(function(name) {
+    const el = document.getElementById('wizard-sheet-name');
+    if (el && name) el.textContent = name;
+  }).gxGetExpectedSheetName();
 }
 
 async function refreshAll() {

@@ -136,6 +136,9 @@ function gxBootstrap(mode) {
   const ss      = SpreadsheetApp.getActiveSpreadsheet();
   gxEnsureCoreSheets_(ss);
   const context = gxGetAccessContext_(ss, mode);
+  // Flag when the script runs as its deployer (common when "Execute as: Me" is set).
+  // The frontend uses this to skip the strict email-match check on sign-in.
+  context.isDeployer = (gxGetUserEmail_() === gxGetDeployerEmail_());
   const roster  = gxGetDynamicSheet_(ss, GX.staffingPrefix);
   const agents  = gxGetAgents_(ss, context);
   const live    = gxGetLiveMonitorData_({ autoSync:true, writeSnapshot:true, context:context });
@@ -1475,7 +1478,29 @@ function gxEnsureSheet_(ss, name, headers) {
 function gxGetDynamicSheet_(ss, prefix) {
   const op   = gxOperationalDate_(new Date());
   const name = gxWeeklySheetName_(prefix, op.ymd);
-  return { sheet:ss.getSheetByName(name), name };
+  let sheet  = ss.getSheetByName(name);
+  if (!sheet) {
+    // Fallback: find the most recent sheet whose name starts with prefix
+    const all = ss.getSheets();
+    let best = null, bestDate = null;
+    for (const s of all) {
+      const n = s.getName();
+      if (!n.startsWith(prefix)) continue;
+      // Extract date portion dd.MM.yyyy from end of sheet name
+      const m = n.match(/(\d{2})\.(\d{2})\.(\d{4})$/);
+      if (!m) continue;
+      const d = new Date(Number(m[3]), Number(m[2])-1, Number(m[1]));
+      if (!bestDate || d > bestDate) { bestDate = d; best = s; }
+    }
+    sheet = best;
+  }
+  return { sheet, name };
+}
+
+/** Exposed to frontend so setup wizard can show the expected sheet name */
+function gxGetExpectedSheetName() {
+  const op = gxOperationalDate_(new Date());
+  return gxWeeklySheetName_(GX.staffingPrefix, op.ymd);
 }
 
 function gxFindAgentById_(ss, id) {
@@ -1604,6 +1629,10 @@ function gxHumanAge_(date, now) {
 }
 function gxGetUserEmail_() {
   try { return String(Session.getActiveUser().getEmail()||'').trim().toLowerCase(); } catch(e) { return ''; }
+}
+
+function gxGetDeployerEmail_() {
+  try { return String(Session.getEffectiveUser().getEmail()||'').trim().toLowerCase(); } catch(e) { return ''; }
 }
 function gxLog_(event, agentId, details, by) {
   try {
